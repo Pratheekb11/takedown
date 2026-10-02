@@ -1,0 +1,2116 @@
+{
+  "characters": {
+    "ryu": {
+      "name": "RYU",
+      "file": "SNES - Super Street Fighter II_ The New Challengers - Fighters - Ryu.gif",
+      "bg": [
+        "#708888",
+        "#000070"
+      ],
+      "strip": "auto",
+      "super1": {
+        "type": "projectile",
+        "anim": "hadouken",
+        "name": "HADOUKEN"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "shoryuken",
+        "name": "SHORYUKEN"
+      },
+      "anims": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "jump": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ],
+        "block": [
+          25
+        ],
+        "jab": [
+          30,
+          31,
+          32
+        ],
+        "cross": [
+          33,
+          34,
+          35,
+          36,
+          37
+        ],
+        "hook": [
+          44,
+          45,
+          46,
+          47
+        ],
+        "uppercut": [
+          48,
+          49,
+          50,
+          51,
+          52
+        ],
+        "kick": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "airkick": [
+          103,
+          104,
+          105
+        ],
+        "hit": [
+          167,
+          168,
+          169,
+          170
+        ],
+        "hitBody": [
+          163,
+          164,
+          165,
+          166
+        ],
+        "fall": [
+          172,
+          173,
+          174
+        ],
+        "lie": [
+          175
+        ],
+        "getup": [
+          176,
+          177,
+          178,
+          179
+        ],
+        "ko": [
+          183,
+          184,
+          185,
+          186,
+          187
+        ],
+        "win": [
+          188,
+          189,
+          190
+        ],
+        "intro": [
+          191,
+          192,
+          193,
+          194,
+          195,
+          196
+        ],
+        "hadouken": [
+          128,
+          129,
+          130,
+          132
+        ],
+        "projectile": [
+          136,
+          139,
+          144
+        ],
+        "shoryuken": [
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117
+        ],
+        "rush": [
+          118,
+          119,
+          121,
+          122,
+          123,
+          124,
+          125,
+          126,
+          127
+        ]
+      },
+      "flip": false
+    },
+    "sagat": {
+      "name": "SAGAT",
+      "file": "SNES - Super Street Fighter II_ The New Challengers - Fighters - Sagat.gif",
+      "bg": [
+        "#301000",
+        "#000070"
+      ],
+      "strip": "auto",
+      "super1": {
+        "type": "projectile",
+        "anim": "tigershot",
+        "name": "TIGER SHOT"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "tigeruppercut",
+        "name": "TIGER UPPERCUT"
+      },
+      "anims": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "jump": [
+          10,
+          11,
+          12,
+          13
+        ],
+        "block": [
+          33
+        ],
+        "jab": [
+          16,
+          17,
+          18
+        ],
+        "cross": [
+          19,
+          20,
+          21,
+          22,
+          23
+        ],
+        "hook": [
+          27,
+          28,
+          29
+        ],
+        "uppercut": [
+          30,
+          31,
+          32
+        ],
+        "kick": [
+          41,
+          42,
+          45
+        ],
+        "airkick": [
+          64,
+          65
+        ],
+        "hit": [
+          104,
+          105,
+          106
+        ],
+        "hitBody": [
+          101,
+          102,
+          103
+        ],
+        "fall": [
+          107,
+          108,
+          109,
+          110
+        ],
+        "lie": [
+          111
+        ],
+        "getup": [
+          112,
+          113,
+          114
+        ],
+        "ko": [
+          118,
+          119,
+          120,
+          121,
+          122
+        ],
+        "win": [
+          123,
+          124
+        ],
+        "intro": [
+          125,
+          126,
+          127,
+          128
+        ],
+        "tigershot": [
+          80,
+          81,
+          82
+        ],
+        "projectile": [
+          87,
+          89
+        ],
+        "tigeruppercut": [
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96
+        ],
+        "rush": [
+          74,
+          75,
+          76,
+          77,
+          78,
+          79
+        ]
+      },
+      "flip": false
+    },
+    "zangief": {
+      "name": "ZANGIEF",
+      "file": "SNES - Super Street Fighter II_ The New Challengers - Fighters - Zangief.gif",
+      "bg": [
+        "#000020",
+        "#000070"
+      ],
+      "strip": "auto",
+      "super1": {
+        "type": "rush",
+        "anim": "lariat",
+        "name": "SPINNING LARIAT"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "piledriver",
+        "name": "SPINNING PILEDRIVER"
+      },
+      "anims": {
+        "idle": [
+          0,
+          1,
+          2
+        ],
+        "walk": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "jump": [
+          9,
+          10,
+          11
+        ],
+        "block": [
+          12
+        ],
+        "jab": [
+          20,
+          21,
+          22
+        ],
+        "cross": [
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "hook": [
+          30,
+          31,
+          32,
+          33
+        ],
+        "uppercut": [
+          26,
+          27,
+          28
+        ],
+        "kick": [
+          37,
+          38,
+          39
+        ],
+        "airkick": [
+          63,
+          64
+        ],
+        "hit": [
+          155,
+          156,
+          157,
+          158
+        ],
+        "hitBody": [
+          151,
+          152,
+          153,
+          154
+        ],
+        "fall": [
+          159,
+          160
+        ],
+        "lie": [
+          161
+        ],
+        "getup": [
+          162,
+          163,
+          164,
+          165
+        ],
+        "ko": [
+          170,
+          171,
+          172,
+          173,
+          174
+        ],
+        "win": [
+          175,
+          176,
+          177,
+          178,
+          179,
+          180
+        ],
+        "intro": [
+          181,
+          182,
+          183
+        ],
+        "lariat": [
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78
+        ],
+        "piledriver": [
+          105,
+          106,
+          107,
+          110,
+          111,
+          112,
+          113
+        ]
+      },
+      "flip": false
+    },
+    "feilong": {
+      "name": "FEI LONG",
+      "file": "SNES - Super Street Fighter II_ The New Challengers - Fighters - Fei Long.gif",
+      "bg": [
+        "#000000",
+        "#000070"
+      ],
+      "strip": "auto",
+      "super1": {
+        "type": "rush",
+        "anim": "rekka",
+        "name": "REKKA KEN"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "shien",
+        "name": "SHIEN KYAKU"
+      },
+      "anims": {
+        "idle": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "walk": [
+          10,
+          11,
+          13,
+          14,
+          15
+        ],
+        "jump": [
+          16,
+          17,
+          18,
+          19,
+          20
+        ],
+        "block": [
+          52
+        ],
+        "jab": [
+          31,
+          32,
+          33
+        ],
+        "cross": [
+          34,
+          35,
+          36,
+          37
+        ],
+        "hook": [
+          45,
+          46,
+          47,
+          48
+        ],
+        "uppercut": [
+          49,
+          50,
+          51
+        ],
+        "kick": [
+          57,
+          58,
+          59,
+          60
+        ],
+        "airkick": [
+          123,
+          124
+        ],
+        "hit": [
+          181,
+          182,
+          183,
+          184
+        ],
+        "hitBody": [
+          185,
+          186,
+          187
+        ],
+        "fall": [
+          188,
+          189
+        ],
+        "lie": [
+          190
+        ],
+        "getup": [
+          191,
+          192,
+          193,
+          194,
+          195
+        ],
+        "ko": [
+          198,
+          199,
+          200,
+          201,
+          202
+        ],
+        "win": [
+          203,
+          204,
+          205,
+          206,
+          207,
+          208
+        ],
+        "intro": [
+          215,
+          216,
+          217,
+          218,
+          219
+        ],
+        "rekka": [
+          134,
+          135,
+          136,
+          137,
+          138,
+          139,
+          140,
+          141
+        ],
+        "shien": [
+          154,
+          155,
+          156,
+          157,
+          158,
+          159,
+          160,
+          161,
+          162
+        ]
+      },
+      "flip": false
+    },
+    "thawk": {
+      "name": "T. HAWK",
+      "file": "SNES - Super Street Fighter II_ The New Challengers - Fighters - T. Hawk.gif",
+      "bg": [
+        "#68e0f0",
+        "#000070"
+      ],
+      "strip": "auto",
+      "super1": {
+        "type": "rush",
+        "anim": "hawk",
+        "name": "RISING HAWK"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "storm",
+        "name": "STORM HAMMER"
+      },
+      "anims": {
+        "idle": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "jump": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "block": [
+          24
+        ],
+        "jab": [
+          26,
+          27,
+          28
+        ],
+        "cross": [
+          29,
+          30,
+          31,
+          32
+        ],
+        "hook": [
+          33,
+          34,
+          35,
+          36
+        ],
+        "uppercut": [
+          42,
+          43,
+          44,
+          45
+        ],
+        "kick": [
+          56,
+          57,
+          58,
+          59
+        ],
+        "airkick": [
+          102,
+          103
+        ],
+        "hit": [
+          151,
+          152,
+          153,
+          154
+        ],
+        "hitBody": [
+          155,
+          156,
+          157
+        ],
+        "fall": [
+          158,
+          159,
+          160
+        ],
+        "lie": [
+          161
+        ],
+        "getup": [
+          162,
+          163,
+          164,
+          165,
+          166
+        ],
+        "ko": [
+          173,
+          174,
+          175,
+          176,
+          177
+        ],
+        "win": [
+          178,
+          179,
+          180,
+          181,
+          182,
+          183,
+          184
+        ],
+        "intro": [
+          185,
+          186,
+          187,
+          188,
+          189
+        ],
+        "hawk": [
+          110,
+          111,
+          112,
+          113
+        ],
+        "storm": [
+          143,
+          144,
+          145,
+          146,
+          147,
+          148,
+          149,
+          150
+        ]
+      },
+      "flip": false
+    },
+    "toki": {
+      "name": "TOKI",
+      "file": "Arcade - Fist of the North Star - Fighters - Toki.png",
+      "bg": [
+        "#ff00ff"
+      ],
+      "cells": true,
+      "super1": {
+        "type": "rush",
+        "anim": "dash",
+        "name": "HOKUTO DASH"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "leap",
+        "name": "HEAVENLY LEAP"
+      },
+      "anims": {
+        "idle": [
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33
+        ],
+        "walk": [
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64
+        ],
+        "jump": [
+          41,
+          43,
+          45,
+          47,
+          49
+        ],
+        "block": [
+          36
+        ],
+        "jab": [
+          73,
+          74,
+          75
+        ],
+        "cross": [
+          77,
+          78,
+          79,
+          80
+        ],
+        "hook": [
+          86,
+          87,
+          88
+        ],
+        "uppercut": [
+          92,
+          93,
+          94
+        ],
+        "kick": [
+          55,
+          56
+        ],
+        "airkick": [
+          53,
+          54
+        ],
+        "hit": [
+          81,
+          82,
+          83,
+          84
+        ],
+        "hitBody": [
+          95,
+          96
+        ],
+        "fall": [
+          105,
+          106,
+          107,
+          108
+        ],
+        "lie": [
+          110
+        ],
+        "getup": [
+          111,
+          112,
+          113
+        ],
+        "ko": [
+          105,
+          106,
+          107,
+          108,
+          109,
+          110
+        ],
+        "win": [
+          4,
+          5,
+          6
+        ],
+        "intro": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20
+        ],
+        "dash": [
+          53,
+          54,
+          55,
+          56
+        ],
+        "leap": [
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49
+        ]
+      },
+      "flip": true
+    },
+    "komaku": {
+      "name": "KOMAKU",
+      "file": "Arcade - Fist of the North Star - Non-Playable Characters - Komaku.png",
+      "bg": [
+        "#ff00ff"
+      ],
+      "cells": true,
+      "super1": {
+        "type": "rush",
+        "anim": "wind",
+        "name": "WIND CLAW"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "pole",
+        "name": "POLE STRIKE"
+      },
+      "anims": {
+        "idle": [
+          25,
+          26,
+          27,
+          28,
+          29,
+          30
+        ],
+        "walk": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "jump": [
+          37,
+          38
+        ],
+        "block": [
+          24
+        ],
+        "jab": [
+          33,
+          34
+        ],
+        "cross": [
+          40,
+          41
+        ],
+        "hook": [
+          12
+        ],
+        "uppercut": [
+          13,
+          14,
+          15,
+          16
+        ],
+        "kick": [
+          21
+        ],
+        "airkick": [
+          22,
+          23
+        ],
+        "hit": [
+          56,
+          57,
+          58
+        ],
+        "hitBody": [
+          59,
+          60
+        ],
+        "fall": [
+          44,
+          45
+        ],
+        "lie": [
+          44
+        ],
+        "getup": [
+          46,
+          47
+        ],
+        "ko": [
+          44,
+          45,
+          61
+        ],
+        "win": [
+          53,
+          54
+        ],
+        "intro": [
+          48,
+          49,
+          50
+        ],
+        "wind": [
+          6,
+          7,
+          8
+        ],
+        "pole": [
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21
+        ]
+      },
+      "flip": true
+    },
+    "batman": {
+      "name": "BATMAN",
+      "file": "SNES - The Adventures of Batman and Robin - Playable Characters - Batman.png",
+      "bg": [
+        "#700000"
+      ],
+      "super1": {
+        "type": "projectile",
+        "anim": "throw",
+        "name": "BATARANG",
+        "shot": "batarang"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "grapple",
+        "name": "GRAPPLE STRIKE"
+      },
+      "anims": {
+        "idle": [
+          60,
+          61,
+          62,
+          63
+        ],
+        "walk": [
+          9,
+          10,
+          12,
+          14,
+          15,
+          17
+        ],
+        "jump": [
+          56,
+          57,
+          58
+        ],
+        "block": [
+          64
+        ],
+        "jab": [
+          69,
+          70,
+          73
+        ],
+        "cross": [
+          73,
+          76
+        ],
+        "hook": [
+          78,
+          80,
+          82
+        ],
+        "uppercut": [
+          83,
+          84,
+          85
+        ],
+        "kick": [
+          29,
+          30,
+          31,
+          32
+        ],
+        "airkick": [
+          59
+        ],
+        "hit": [
+          199,
+          200
+        ],
+        "hitBody": [
+          200
+        ],
+        "fall": [
+          201,
+          202,
+          203,
+          204
+        ],
+        "lie": [
+          205
+        ],
+        "getup": [
+          203,
+          202
+        ],
+        "ko": [
+          201,
+          202,
+          203,
+          204,
+          205,
+          206,
+          207
+        ],
+        "win": [
+          135,
+          136,
+          137,
+          138
+        ],
+        "intro": [
+          145,
+          146,
+          147,
+          148,
+          149
+        ],
+        "throw": [
+          155,
+          157,
+          160,
+          163
+        ],
+        "grapple": [
+          170,
+          171,
+          172,
+          173,
+          174,
+          175,
+          176,
+          177,
+          178
+        ]
+      },
+      "flip": false
+    },
+    "superman": {
+      "name": "SUPERMAN",
+      "file": "SNES - The Death and Return of Superman - Playable Characters - Superman.png",
+      "bg": [],
+      "super1": {
+        "type": "projectile",
+        "anim": "heat",
+        "name": "HEAT VISION"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "fly",
+        "name": "FLYING FIST"
+      },
+      "anims": {
+        "idle": [
+          2,
+          4,
+          6,
+          8,
+          10
+        ],
+        "walk": [
+          1,
+          3,
+          5,
+          7,
+          9,
+          11
+        ],
+        "jump": [
+          52,
+          53
+        ],
+        "block": [
+          16
+        ],
+        "jab": [
+          15,
+          17
+        ],
+        "cross": [
+          18,
+          19
+        ],
+        "hook": [
+          20,
+          21
+        ],
+        "uppercut": [
+          32,
+          33
+        ],
+        "kick": [
+          83,
+          82,
+          80
+        ],
+        "airkick": [
+          80,
+          81
+        ],
+        "hit": [
+          58,
+          59
+        ],
+        "hitBody": [
+          56,
+          57
+        ],
+        "fall": [
+          59,
+          60
+        ],
+        "lie": [
+          60
+        ],
+        "getup": [
+          61,
+          62
+        ],
+        "ko": [
+          59,
+          60
+        ],
+        "win": [
+          101,
+          113
+        ],
+        "intro": [
+          84,
+          85,
+          86,
+          87
+        ],
+        "heat": [
+          42,
+          43,
+          44,
+          45
+        ],
+        "fly": [
+          88,
+          89,
+          90,
+          91,
+          92
+        ]
+      },
+      "flip": false
+    },
+    "wolverine": {
+      "name": "WOLVERINE",
+      "file": "SNES - X-Men_ Mutant Apocalypse - Playable Characters - Wolverine.png",
+      "bg": [
+        "#ffffff"
+      ],
+      "super1": {
+        "type": "rush",
+        "anim": "berserk",
+        "name": "BERSERKER BARRAGE"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "tornado",
+        "name": "TORNADO CLAW"
+      },
+      "anims": {
+        "idle": [
+          1,
+          2,
+          3
+        ],
+        "walk": [
+          1,
+          2,
+          3
+        ],
+        "jump": [
+          5,
+          6,
+          7
+        ],
+        "block": [
+          1
+        ],
+        "jab": [
+          10,
+          11
+        ],
+        "cross": [
+          12,
+          13
+        ],
+        "hook": [
+          24,
+          25
+        ],
+        "uppercut": [
+          14,
+          15,
+          16,
+          17
+        ],
+        "kick": [
+          26,
+          27,
+          28
+        ],
+        "airkick": [
+          22
+        ],
+        "hit": [
+          30
+        ],
+        "hitBody": [
+          32
+        ],
+        "fall": [
+          31,
+          33
+        ],
+        "lie": [
+          35
+        ],
+        "getup": [
+          34,
+          36
+        ],
+        "ko": [
+          31,
+          33,
+          35
+        ],
+        "win": [
+          23
+        ],
+        "intro": [
+          20,
+          21
+        ],
+        "berserk": [
+          24,
+          25,
+          26,
+          27,
+          28
+        ],
+        "tornado": [
+          14,
+          15,
+          16,
+          17
+        ]
+      },
+      "flip": false
+    },
+    "juggernaut": {
+      "name": "JUGGERNAUT",
+      "file": "SNES - X-Men_ Mutant Apocalypse - Enemies & Bosses - Juggernaut.png",
+      "bg": [
+        "#c3c3c3"
+      ],
+      "super1": {
+        "type": "rush",
+        "anim": "charge",
+        "name": "JUGGERNAUT CHARGE"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "smash",
+        "name": "UNSTOPPABLE"
+      },
+      "anims": {
+        "idle": [
+          0
+        ],
+        "walk": [
+          9,
+          10,
+          11,
+          12
+        ],
+        "jump": [
+          13
+        ],
+        "block": [
+          17
+        ],
+        "jab": [
+          1,
+          2
+        ],
+        "cross": [
+          1,
+          2,
+          3
+        ],
+        "hook": [
+          21,
+          22
+        ],
+        "uppercut": [
+          23,
+          24
+        ],
+        "kick": [
+          26,
+          27,
+          28
+        ],
+        "airkick": [
+          13
+        ],
+        "hit": [
+          14,
+          15
+        ],
+        "hitBody": [
+          15
+        ],
+        "win": [
+          4,
+          5,
+          6
+        ],
+        "intro": [
+          0,
+          16
+        ],
+        "charge": [
+          62,
+          63,
+          64,
+          65,
+          66
+        ],
+        "smash": [
+          23,
+          24,
+          25
+        ]
+      },
+      "flip": false
+    },
+    "apocalypse": {
+      "name": "APOCALYPSE",
+      "file": "SNES - X-Men_ Mutant Apocalypse - Enemies & Bosses - Apocalypse.png",
+      "bg": [
+        "#005b7f"
+      ],
+      "super1": {
+        "type": "rush",
+        "anim": "drill",
+        "name": "DRILL ARM"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "spikes",
+        "name": "SPIKE BURST"
+      },
+      "anims": {
+        "idle": [
+          4,
+          8,
+          9
+        ],
+        "walk": [
+          12,
+          13
+        ],
+        "jump": [
+          26
+        ],
+        "block": [
+          22
+        ],
+        "jab": [
+          5,
+          6
+        ],
+        "cross": [
+          14,
+          15
+        ],
+        "hook": [
+          22,
+          23
+        ],
+        "uppercut": [
+          10,
+          11
+        ],
+        "kick": [
+          24,
+          25
+        ],
+        "airkick": [
+          26
+        ],
+        "hit": [
+          27
+        ],
+        "hitBody": [
+          27
+        ],
+        "fall": [
+          48
+        ],
+        "lie": [
+          49
+        ],
+        "getup": [
+          50
+        ],
+        "ko": [
+          48,
+          49
+        ],
+        "win": [
+          10,
+          11
+        ],
+        "intro": [
+          8
+        ],
+        "drill": [
+          16,
+          17,
+          18,
+          19
+        ],
+        "spikes": [
+          10,
+          11,
+          28
+        ]
+      },
+      "flip": true
+    },
+    "catwoman": {
+      "name": "CATWOMAN",
+      "file": "SNES - The Adventures of Batman and Robin - Enemies & Bosses - Catwoman.png",
+      "bg": [
+        "#4a69bb"
+      ],
+      "anims": {
+        "idle": [
+          19,
+          20,
+          21
+        ],
+        "walk": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "jump": [
+          1,
+          2,
+          4,
+          5
+        ],
+        "block": [
+          48
+        ],
+        "jab": [
+          54,
+          55,
+          56
+        ],
+        "cross": [
+          56,
+          57
+        ],
+        "hook": [
+          58,
+          59
+        ],
+        "uppercut": [
+          43,
+          44
+        ],
+        "kick": [
+          64,
+          65,
+          66
+        ],
+        "airkick": [
+          97
+        ],
+        "hit": [
+          23,
+          24
+        ],
+        "hitBody": [
+          25,
+          26
+        ],
+        "fall": [
+          31,
+          32,
+          33
+        ],
+        "lie": [
+          34
+        ],
+        "getup": [
+          35,
+          36,
+          37,
+          38,
+          39,
+          40
+        ],
+        "ko": [
+          31,
+          32,
+          33,
+          34
+        ],
+        "win": [
+          49,
+          50
+        ],
+        "intro": [
+          8,
+          19
+        ],
+        "whip": [
+          71,
+          72,
+          73,
+          74,
+          75,
+          76
+        ],
+        "pounce": [
+          44,
+          45,
+          46,
+          47
+        ]
+      },
+      "super1": {
+        "type": "rush",
+        "anim": "whip",
+        "name": "WHIP LASH"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "pounce",
+        "name": "CAT POUNCE"
+      },
+      "scale2x": true,
+      "flip": false,
+      "target_h": 81
+    },
+    "joker": {
+      "name": "JOKER",
+      "file": "SNES - The Adventures of Batman and Robin - Enemies & Bosses - The Joker.png",
+      "bg": [
+        "#006052"
+      ],
+      "anims": {
+        "idle": [
+          39,
+          40,
+          41
+        ],
+        "walk": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "jump": [
+          25,
+          26
+        ],
+        "block": [
+          44
+        ],
+        "jab": [
+          42,
+          43
+        ],
+        "cross": [
+          17,
+          21
+        ],
+        "hook": [
+          45,
+          46
+        ],
+        "uppercut": [
+          25,
+          27
+        ],
+        "kick": [
+          18,
+          19,
+          20
+        ],
+        "airkick": [
+          19
+        ],
+        "hit": [
+          53,
+          54,
+          55
+        ],
+        "hitBody": [
+          53
+        ],
+        "fall": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "lie": [
+          61
+        ],
+        "getup": [
+          64,
+          65,
+          66,
+          67,
+          68
+        ],
+        "ko": [
+          56,
+          57,
+          58,
+          61
+        ],
+        "win": [
+          69,
+          70,
+          71
+        ],
+        "intro": [
+          5,
+          22
+        ],
+        "bomb": [
+          31,
+          32,
+          33,
+          34,
+          35,
+          36
+        ],
+        "bombshot": [
+          37
+        ],
+        "gun": [
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          87,
+          88
+        ]
+      },
+      "super1": {
+        "type": "projectile",
+        "anim": "bomb",
+        "name": "JOKER BOMB",
+        "shot": "bombshot"
+      },
+      "super2": {
+        "type": "projectile",
+        "anim": "gun",
+        "name": "BANG! GUN",
+        "shot": "none"
+      },
+      "scale2x": true
+    },
+    "scarecrow": {
+      "name": "SCARECROW",
+      "file": "SNES - The Adventures of Batman and Robin - Enemies & Bosses - Scarecrow.png",
+      "bg": [
+        "#4a69bb"
+      ],
+      "anims": {
+        "idle": [
+          22,
+          23,
+          24
+        ],
+        "walk": [
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "jump": [
+          16,
+          17
+        ],
+        "block": [
+          31
+        ],
+        "jab": [
+          32,
+          33
+        ],
+        "cross": [
+          43,
+          44
+        ],
+        "hook": [
+          27,
+          28
+        ],
+        "uppercut": [
+          29,
+          30
+        ],
+        "kick": [
+          17,
+          18
+        ],
+        "airkick": [
+          18
+        ],
+        "hit": [
+          49,
+          50
+        ],
+        "hitBody": [
+          51,
+          52
+        ],
+        "fall": [
+          55,
+          56,
+          57,
+          58,
+          59
+        ],
+        "lie": [
+          60
+        ],
+        "getup": [
+          64,
+          65,
+          66,
+          67,
+          68
+        ],
+        "ko": [
+          56,
+          57,
+          58,
+          59,
+          60
+        ],
+        "win": [
+          34,
+          35
+        ],
+        "intro": [
+          6,
+          36
+        ],
+        "gun": [
+          41,
+          43,
+          44,
+          45
+        ],
+        "claws": [
+          19,
+          20,
+          21,
+          27,
+          28,
+          29
+        ]
+      },
+      "super1": {
+        "type": "projectile",
+        "anim": "gun",
+        "name": "FEAR GAS GUN"
+      },
+      "super2": {
+        "type": "rush",
+        "anim": "claws",
+        "name": "TERROR CLAWS"
+      },
+      "scale2x": true
+    },
+    "penguin": {
+      "name": "PENGUIN",
+      "file": "SNES - The Adventures of Batman and Robin - Enemies & Bosses - The Penguin.png",
+      "bg": [
+        "#ffffff"
+      ],
+      "anims": {
+        "idle": [
+          3,
+          13,
+          14
+        ],
+        "walk": [
+          4,
+          5,
+          6,
+          8,
+          9
+        ],
+        "jump": [
+          65,
+          66,
+          67
+        ],
+        "block": [
+          15
+        ],
+        "jab": [
+          13,
+          10
+        ],
+        "cross": [
+          7,
+          23
+        ],
+        "hook": [
+          10,
+          19
+        ],
+        "uppercut": [
+          25,
+          19
+        ],
+        "kick": [
+          23,
+          24
+        ],
+        "airkick": [
+          68
+        ],
+        "hit": [
+          38,
+          39
+        ],
+        "hitBody": [
+          38
+        ],
+        "fall": [
+          39,
+          40,
+          41
+        ],
+        "lie": [
+          49
+        ],
+        "getup": [
+          62,
+          63,
+          64
+        ],
+        "ko": [
+          39,
+          40,
+          49
+        ],
+        "win": [
+          19
+        ],
+        "intro": [
+          3,
+          17
+        ],
+        "shoot": [
+          7,
+          9,
+          10
+        ],
+        "heli": [
+          65,
+          66,
+          67,
+          68,
+          69
+        ]
+      },
+      "super1": {
+        "type": "projectile",
+        "anim": "shoot",
+        "name": "UMBRELLA GUN"
+      },
+      "super2": {
+        "type": "rising",
+        "anim": "heli",
+        "name": "BIRD COPTER"
+      },
+      "scale2x": true,
+      "flip": true,
+      "flip_frames": [
+        19,
+        24,
+        25
+      ]
+    },
+    "clayface": {
+      "name": "CLAYFACE",
+      "file": "SNES - The Adventures of Batman and Robin - Enemies & Bosses - Clayface.png",
+      "bg": [],
+      "anims": {
+        "idle": [
+          9,
+          10
+        ],
+        "walk": [
+          19,
+          20,
+          21,
+          22
+        ],
+        "jump": [
+          12,
+          13
+        ],
+        "block": [
+          23
+        ],
+        "jab": [
+          32,
+          41
+        ],
+        "cross": [
+          33,
+          40
+        ],
+        "hook": [
+          42,
+          41
+        ],
+        "uppercut": [
+          36,
+          42
+        ],
+        "kick": [
+          34,
+          40
+        ],
+        "airkick": [
+          13
+        ],
+        "hit": [
+          37,
+          38
+        ],
+        "hitBody": [
+          36
+        ],
+        "fall": [
+          45,
+          46,
+          47
+        ],
+        "lie": [
+          48
+        ],
+        "getup": [
+          47,
+          46,
+          45
+        ],
+        "ko": [
+          45,
+          46,
+          47,
+          48,
+          49
+        ],
+        "win": [
+          44
+        ],
+        "intro": [
+          4,
+          9
+        ],
+        "throwblock": [
+          24,
+          26,
+          27,
+          28
+        ],
+        "projectile": [
+          35
+        ],
+        "roll": [
+          12,
+          13,
+          14,
+          15,
+          16
+        ]
+      },
+      "super1": {
+        "type": "projectile",
+        "anim": "throwblock",
+        "name": "CLAY BRICK"
+      },
+      "super2": {
+        "type": "rush",
+        "anim": "roll",
+        "name": "MUD BALL"
+      },
+      "scale2x": true
+    }
+  },
+  "target_h": 92
+}

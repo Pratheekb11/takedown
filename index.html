@@ -1,14 +1,191 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#08070d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Take Down</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2308070d'/%3E%3Cpath d='M6 9h20v5h-7v13h-6V14H6z' fill='%23ff3b3b'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bangers&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <canvas>
-        
-    </canvas>
-    <script src="index.js"></script>
+  <div id="app">
+    <div id="stage">
+      <canvas id="game"></canvas>
+
+      <div id="hud" class="hidden">
+        <div class="side p1">
+          <div class="name" id="p1-name">P1</div>
+          <div class="hp"><div class="ghost" id="p1-ghost"></div><div class="fill" id="p1-hp"></div></div>
+          <div class="pw" id="p1-pw-wrap" data-lv="0"><div class="pfill" id="p1-pw"></div><i></i><span>POWER</span></div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="side p2">
+          <div class="name" id="p2-name">P2</div>
+          <div class="hp"><div class="ghost" id="p2-ghost"></div><div class="fill" id="p2-hp"></div></div>
+          <div class="pw" id="p2-pw-wrap" data-lv="0"><div class="pfill" id="p2-pw"></div><i></i><span>POWER</span></div>
+        </div>
+        <div class="combo p1" id="p1-combo"></div>
+        <div class="combo p2" id="p2-combo"></div>
+      </div>
+
+      <div id="announcer"></div>
+      <div id="super-banner"><span class="who"></span><span class="what"></span></div>
+    </div>
+
+    <div id="topbar" class="hidden">
+      <button class="icon-btn" id="btn-mute" aria-label="Mute">&#9835;</button>
+      <button class="icon-btn" id="btn-pause" aria-label="Pause">&#10074;&#10074;</button>
+    </div>
+
+    <!-- Touch controls (phones / tablets) -->
+    <div id="touch" class="hidden">
+      <!-- Left thumb: fixed stick. Slide to move, flick up to jump, pull down to block. -->
+      <div class="stick-zone" id="stick-zone">
+        <div class="stick" id="stick">
+          <i class="tick l"></i><i class="tick r"></i><i class="tick u"></i><i class="tick d"></i>
+          <div class="knob"></div>
+        </div>
+      </div>
+      <!-- Right thumb: three buttons on an arc around the big one. -->
+      <div class="arc">
+        <button data-act="punch" class="tb main" aria-label="Punch">PUNCH</button>
+        <button data-act="kick" class="tb kick" aria-label="Kick">KICK</button>
+        <button data-act="super" class="tb sup" aria-label="Super" data-lv="0">SUPER<i class="ring"></i></button>
+      </div>
+    </div>
+
+    <!-- Screens -->
+    <section class="screen" id="scr-title">
+      <div class="title-wrap">
+        <h1 class="logo"><span class="l1">TAKE</span><span class="l2">DOWN</span></h1>
+        <p class="tag">Street fight. No ring. One winner.</p>
+        <div class="menu">
+          <button class="btn primary" data-go="setup">Play vs Computer</button>
+          <button class="btn locked" disabled>Play vs Friend <small>coming soon</small></button>
+          <button class="btn ghost" data-go="howto">How to play</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="scr-setup">
+      <div class="panel wide">
+        <h2>Select your fighter</h2>
+        <div class="versus">
+          <div class="slot on" id="slot-0">
+            <span class="slot-tag">You</span>
+            <canvas class="big" width="160" height="150"></canvas>
+            <input id="in-p1" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Your fighter name">
+          </div>
+          <div class="vs-mark">VS</div>
+          <div class="slot" id="slot-1">
+            <span class="slot-tag">CPU</span>
+            <canvas class="big" width="160" height="150"></canvas>
+            <input id="in-p2" maxlength="12" autocomplete="off" spellcheck="false" aria-label="Opponent name">
+          </div>
+        </div>
+        <p class="hint" id="pick-hint">Pick your fighter</p>
+        <div class="roster" id="roster"></div>
+        <div class="row">
+          <button class="btn ghost" data-go="title">Back</button>
+          <div class="seg" id="diff" role="radiogroup" aria-label="Difficulty">
+            <button data-d="easy">Easy</button>
+            <button data-d="normal" class="on">Normal</button>
+            <button data-d="hard">Hard</button>
+          </div>
+          <button class="btn primary" id="btn-fight">Fight!</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="scr-howto">
+      <div class="panel">
+        <h2>How to play</h2>
+        <div class="howto">
+          <div class="touch-only">
+            <h3>Touch</h3>
+            <ul class="keys">
+              <li><span class="pill">Left thumb</span> slide to move</li>
+              <li><span class="pill">Flick up</span> jump</li>
+              <li><span class="pill">Pull down</span> block</li>
+              <li><span class="pill red">PUNCH</span> keep tapping for a combo</li>
+              <li><span class="pill">Down + PUNCH</span> uppercut</li>
+              <li><span class="pill gold">KICK</span> big kick</li>
+              <li><span class="pill cyan">SUPER</span> tap when it glows</li>
+            </ul>
+          </div>
+          <div class="key-only">
+            <h3>Keyboard</h3>
+            <ul class="keys">
+              <li><kbd>A</kbd><kbd>D</kbd> / <kbd>&larr;</kbd><kbd>&rarr;</kbd> move</li>
+              <li><kbd>W</kbd> / <kbd>Space</kbd> jump</li>
+              <li><kbd>S</kbd> / <kbd>&darr;</kbd> hold to block</li>
+              <li><kbd>J</kbd> jab &nbsp; <kbd>K</kbd> punch &nbsp; <kbd>L</kbd> hook</li>
+              <li><kbd>I</kbd> uppercut &nbsp; <kbd>U</kbd> kick</li>
+              <li><kbd>O</kbd> special (½ power) &nbsp; <kbd>P</kbd> super special (full)</li>
+              <li><kbd>Esc</kbd> pause</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Tips</h3>
+            <ul>
+              <li class="key-only">Chain hits: <b>jab &rarr; punch &rarr; hook &rarr; uppercut</b>. Press the next one as a hit lands.</li>
+              <li>Landing hits and taking damage fills <b>POWER</b>. Half bar: special move. Full bar: super special. Every fighter has their own.</li>
+              <li>Hit someone mid-attack for a <b>COUNTER</b> (bonus damage).</li>
+              <li>Attack while jumping for a flying kick.</li>
+              <li class="touch-only">Turn your phone sideways to play.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="row"><button class="btn primary" data-go="title">Got it</button></div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="scr-pause">
+      <div class="panel small">
+        <h2>Paused</h2>
+        <div class="menu">
+          <button class="btn primary" id="btn-resume">Resume</button>
+          <button class="btn" id="btn-restart">Restart fight</button>
+          <button class="btn ghost" id="btn-quit">Quit to menu</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="screen hidden dim" id="scr-result">
+      <div class="panel small">
+        <p class="result-kicker" id="res-kicker">WINNER</p>
+        <h2 class="result-name" id="res-name"></h2>
+        <table class="stats" id="res-stats"></table>
+        <div class="menu">
+          <button class="btn primary" id="btn-rematch">Rematch</button>
+          <button class="btn ghost" id="btn-menu">Main menu</button>
+        </div>
+      </div>
+    </section>
+
+    <div id="rotate-hint">
+      <div class="phone"></div>
+      <p>Turn your phone sideways to fight</p>
+    </div>
+  </div>
+
+  <script src="js/util.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/moves.js"></script>
+  <script src="js/sprite-data.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/effects.js"></script>
+  <script src="js/stage.js"></script>
+  <script src="js/fighter.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>
