@@ -2,8 +2,8 @@
 
 // Stages. Static layers are painted once into offscreen canvases, so each frame costs
 // two drawImage calls (plus a handful of crowd shapes in the alley).
-//   alley     - night alley painted in code, with a crowd behind the fence
-//   others    - pictures composed by tools/build_stages.py, drawn with crisp pixels
+//   pictures  - composed by tools/build_stages.py, drawn with crisp pixels (cafe is the default)
+//   alley     - night alley painted in code; fallback when the pictures aren't built
 const GAP_L = 430;
 const GAP_R = 850;
 const STREET_Y = 585;
@@ -23,7 +23,11 @@ function seeded(seed) {
   return () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
 }
 
-const STAGE_FILES = { gotham: 'assets/stages/gotham.png', funhouse: 'assets/stages/funhouse.png' };
+const STAGE_FILES = {
+  cafe: 'assets/stages/cafe.png',
+  gotham: 'assets/stages/gotham.png',
+  funhouse: 'assets/stages/funhouse.png',
+};
 const STAGE_PICS = {}; // id -> loaded image, filled by loadStages()
 
 function loadStages() {
@@ -42,8 +46,14 @@ function loadStages() {
   return Promise.all(jobs);
 }
 
+// The code-painted alley is only a fallback for when the stage pictures aren't built.
 function stageIds() {
-  return ['alley', ...Object.keys(STAGE_PICS)];
+  const pics = Object.keys(STAGE_PICS);
+  return pics.length ? pics : ['alley'];
+}
+
+function defaultStage() {
+  return STAGE_PICS.cafe ? 'cafe' : stageIds()[0];
 }
 
 function buildStage(scale, id = 'alley') {

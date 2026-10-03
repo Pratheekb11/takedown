@@ -40,6 +40,9 @@ def pieces(file, key=(255, 0, 255)):
 
 def find(ps, w, h):
     """The piece with this size (sizes are stable; reading order is not)."""
+    exact = [p for p in ps if (p.width, p.height) == (w, h)]
+    if exact:
+        return exact[0]
     for p in ps:
         if abs(p.width - w) <= 2 and abs(p.height - h) <= 2:
             return p
@@ -57,6 +60,23 @@ def gotham():
     im.alpha_composite(street.crop((640, 0, 640 + W, street.height)), (0, GROUND - street.height + 4))
     im.alpha_composite(lamp, (32, GROUND - lamp.height + 4))
     im.alpha_composite(lamp.transpose(Image.FLIP_LEFT_RIGHT), (W - 32 - lamp.width, GROUND - lamp.height + 4))
+    return im
+
+
+def cafe():
+    """Default stage: red night sky over the skyline, the CAFE storefront behind the fighters."""
+    ps = pieces(BR + 'Area 1-1.png')
+    sky, skyline = find(ps, 258, 226), find(ps, 514, 258)
+    street, lamp, hydrant = find(ps, 1754, 212), find(ps, 35, 192), find(ps, 24, 36)
+    im = Image.new('RGBA', (W, H), (0, 0, 0, 0))
+    im.paste(sky.resize((W, GROUND), Image.BILINEAR), (0, 0))
+    im.alpha_composite(skyline.crop((40, 0, 40 + W, skyline.height)), (0, -70))
+    # CAFE window, door, CAFE window: the door sits right behind the middle of the fight
+    x0 = 108
+    im.alpha_composite(street.crop((x0, 0, x0 + W, street.height)), (0, GROUND - street.height + 4))
+    im.alpha_composite(lamp, (18, GROUND - lamp.height + 4))
+    im.alpha_composite(lamp.transpose(Image.FLIP_LEFT_RIGHT), (W - 18 - lamp.width, GROUND - lamp.height + 4))
+    im.alpha_composite(hydrant, (62, GROUND - hydrant.height + 4))
     return im
 
 
@@ -80,7 +100,7 @@ def backdrop():
     return Image.fromarray(a)
 
 
-STAGES = {'gotham': gotham, 'funhouse': funhouse}
+STAGES = {'cafe': cafe, 'gotham': gotham, 'funhouse': funhouse}
 
 if __name__ == '__main__':
     os.makedirs(OUT_DIR, exist_ok=True)

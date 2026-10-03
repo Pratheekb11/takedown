@@ -158,6 +158,7 @@ class Game {
 
   // Menu backdrop: two fighters flexing on the stage.
   showcase(chA, chB) {
+    this.setStage(defaultStage());
     this.p1 = new Fighter({ name: '', ch: chA, input: new PlayerInput(), side: 0 });
     this.p2 = new Fighter({ name: '', ch: chB, input: new PlayerInput(), side: 1 });
     this.p1.setState('intro', 1);
@@ -173,10 +174,7 @@ class Game {
 
   start(cfg) {
     const [i1, i2] = this.inputs;
-    if ((cfg.stage || 'alley') !== this.stageId) {
-      this.stageId = cfg.stage || 'alley';
-      this.layers = buildStage(this.scale, this.stageId);
-    }
+    this.setStage(cfg.stage || defaultStage());
     this.p1 = new Fighter({ name: cfg.p1.name, ch: cfg.p1.ch, input: i1, side: 0 });
     this.p2 = new Fighter({ name: cfg.p2.name, ch: cfg.p2.ch, input: i2, side: 1 });
     this.ai = cfg.mode === 'cpu' ? new AIController(cfg.difficulty, i2) : null;
@@ -191,6 +189,12 @@ class Game {
     this.hud.setup(this.p1, this.p2);
     this.hud.show(true);
     this.ensureLoop();
+  }
+
+  setStage(id) {
+    if (id === this.stageId) return;
+    this.stageId = id;
+    this.layers = buildStage(this.scale, id);
   }
 
   ensureLoop() {
