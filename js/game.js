@@ -99,6 +99,10 @@ class Hud {
 }
 
 const ROUNDS_TO_WIN = 2; // best of three
+const ROUND_WORDS = ['', 'one', 'two', 'three'];
+
+// Names are shown in capitals; speech engines spell all-caps words out letter by letter.
+const spoken = (s) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 const MAX_CROP = 0.25; // share of the world height a wide screen may trim
 const FLOOR_KEEP = 40; // world units of floor trimmed first; the rest comes off the sky
 
@@ -308,17 +312,26 @@ class Game {
 
   tickIntro() {
     const t = this.phaseT;
-    if (t === 1) this.hud.announce(`${this.p1.name} vs ${this.p2.name}`, 'names');
+    if (t === 1) {
+      this.hud.announce(`${this.p1.name} vs ${this.p2.name}`, 'names');
+      Sound.say(`${spoken(this.p1.name)} versus ${spoken(this.p2.name)}`, { rate: 0.95 });
+    }
     if (t === 85) {
       if (this.p1.state === 'intro') this.p1.setState('idle', 8);
       if (this.p2.state === 'intro') this.p2.setState('idle', 8);
-      if (this.finalRound) this.hud.announce('FINAL ROUND', 'round final');
-      else this.hud.announce(`ROUND ${this.round}`, 'round');
+      if (this.finalRound) {
+        this.hud.announce('FINAL ROUND', 'round final');
+        Sound.say('Final round!', { rate: 0.8, interrupt: false });
+      } else {
+        this.hud.announce(`ROUND ${this.round}`, 'round');
+        Sound.say(`Round ${ROUND_WORDS[this.round]}!`, { rate: 0.85, interrupt: false });
+      }
       Sound.ui();
     }
     if (t === 140) {
       this.phase = 'fight';
       this.hud.announce('FIGHT!', 'fight');
+      Sound.say('Fight!', { rate: 1, pitch: 0.5 });
       Sound.bell();
       this.crowd.excite(0.8);
     }
@@ -334,6 +347,7 @@ class Game {
     }
     const matchOver = this.won[w.side] >= ROUNDS_TO_WIN;
     if (!matchOver && t === 200) this.nextRound();
+    if (matchOver && t === 150) Sound.say(`${spoken(w.name)} wins!`, { rate: 0.9 });
     if (matchOver && t === 250) {
       this.phase = 'over';
       this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2, won: this.won });
@@ -433,6 +447,7 @@ class Game {
     this.freezeUser = f;
     Sound.superCharge();
     this.hud.superBanner(f, m);
+    Sound.say(spoken(m.name) + '!', { rate: 1.05, pitch: 0.7 });
     this.crowd.excite(0.6);
     this.fx.ring(f.x, f.y - 120, 20, 260, 26, m.aura, 8);
     this.shake(4, m.freeze);
@@ -451,6 +466,7 @@ class Game {
     Sound.crowd();
     this.crowd.excite(1.5);
     this.hud.announce('K.O.', 'ko');
+    Sound.say('Knockout!', { rate: 0.7, pitch: 0.45 });
     this.won[winner.side]++;
     this.hud.rounds(this.won);
   }

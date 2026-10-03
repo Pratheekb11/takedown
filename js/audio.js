@@ -1,6 +1,7 @@
 'use strict';
 
-// All sound is synthesized with WebAudio, so the game ships with zero audio files.
+// All sound is synthesized (WebAudio effects, speech-synthesis announcer), so the game
+// ships with zero audio files.
 const Sound = (() => {
   let ctx = null;
   let master = null;
@@ -60,10 +61,44 @@ const Sound = (() => {
     o.stop(t + dur + 0.05);
   }
 
+  // Announcer voice: the device's own speech synthesizer, pitched down and slowed
+  // for an arcade-announcer feel. Silently does nothing where speech isn't available.
+  const speech = window.speechSynthesis;
+  let voice = null;
+  function pickVoice() {
+    const all = speech ? speech.getVoices().filter((v) => /^en/i.test(v.lang)) : [];
+    const pref = [/google uk english male/i, /daniel/i, /\bguy\b/i, /david/i, /\balex\b/i, /\bfred\b/i, /male/i];
+    voice = pref.reduce((hit, re) => hit || all.find((v) => re.test(v.name)), null) || all[0] || null;
+  }
+  if (speech) {
+    pickVoice();
+    speech.addEventListener('voiceschanged', pickVoice);
+  }
+
+  // interrupt: cut off whatever is being said (default). Off = wait for it to finish.
+  function say(text, { rate = 0.9, pitch = 0.55, volume = 1, interrupt = true } = {}) {
+    if (!speech || muted) return;
+    if (interrupt) speech.cancel(); // never let stale lines pile up
+    const u = new SpeechSynthesisUtterance(text);
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : 'en-US';
+    u.rate = rate;
+    u.pitch = pitch;
+    u.volume = volume;
+    speech.speak(u);
+  }
+
+  function hush() {
+    if (speech) speech.cancel();
+  }
+
   return {
     init,
+    say,
+    hush,
     toggle() {
       muted = !muted;
+      if (muted) hush();
       return muted;
     },
     get muted() {

@@ -47,6 +47,7 @@
 
   function go(name) {
     if (name === 'title') {
+      Sound.hush();
       setMatchUi(false);
       game.showcase(CHARS[setup.pick[0]], CHARS[setup.pick[1]]);
     }
@@ -208,6 +209,7 @@
     game.paused = on;
     touch.reset();
     game.inputs[0].reset();
+    if (on) Sound.hush();
     show(on ? 'pause' : null);
   }
 
