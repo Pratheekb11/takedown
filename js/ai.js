@@ -12,6 +12,7 @@ const CHAIN_NEXT = { jab: 'cross', cross: 'hook', hook: 'upper' };
 // `react` frames ago, so difficulty is mostly reaction time + decision odds.
 class AIController {
   constructor(level, input) {
+    this.level = level;
     this.cfg = AI_LEVELS[level] || AI_LEVELS.normal;
     this.input = input;
     this.hist = [];

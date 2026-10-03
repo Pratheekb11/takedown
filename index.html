@@ -20,13 +20,13 @@
 
       <div id="hud" class="hidden">
         <div class="side p1">
-          <div class="name" id="p1-name">P1</div>
+          <div class="name"><span id="p1-name">P1</span><span class="pips" id="p1-pips"><i></i><i></i></span></div>
           <div class="hp"><div class="ghost" id="p1-ghost"></div><div class="fill" id="p1-hp"></div></div>
           <div class="pw" id="p1-pw-wrap" data-lv="0"><div class="pfill" id="p1-pw"></div><i></i><span>POWER</span></div>
         </div>
         <div class="vs">VS</div>
         <div class="side p2">
-          <div class="name" id="p2-name">P2</div>
+          <div class="name"><span id="p2-name">P2</span><span class="pips" id="p2-pips"><i></i><i></i></span></div>
           <div class="hp"><div class="ghost" id="p2-ghost"></div><div class="fill" id="p2-hp"></div></div>
           <div class="pw" id="p2-pw-wrap" data-lv="0"><div class="pfill" id="p2-pw"></div><i></i><span>POWER</span></div>
         </div>
@@ -136,6 +136,7 @@
             <ul>
               <li class="key-only">Chain hits: <b>jab &rarr; punch &rarr; hook &rarr; uppercut</b>. Press the next one as a hit lands.</li>
               <li>Landing hits and taking damage fills <b>POWER</b>. Half bar: special move. Full bar: super special. Every fighter has their own.</li>
+              <li>Best of three rounds: two K.O.s wins. Power carries over between rounds.</li>
               <li>Hit someone mid-attack for a <b>COUNTER</b> (bonus damage).</li>
               <li>Attack while jumping for a flying kick.</li>
               <li class="touch-only">Turn your phone sideways to play.</li>

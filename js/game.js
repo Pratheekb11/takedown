@@ -12,6 +12,7 @@ class Hud {
       pw: $(`p${i + 1}-pw`),
       pwWrap: $(`p${i + 1}-pw-wrap`),
       combo: $(`p${i + 1}-combo`),
+      pips: [...$(`p${i + 1}-pips`).children],
       last: { hp: -1, ghost: -1, pw: -1, lv: -1 },
       comboT: 0,
     }));
@@ -32,6 +33,10 @@ class Hud {
 
   show(on) {
     this.root.classList.toggle('hidden', !on);
+  }
+
+  rounds(won) {
+    won.forEach((n, i) => this.sides[i].pips.forEach((pip, k) => pip.classList.toggle('won', k < n)));
   }
 
   update(p1, p2) {
@@ -93,6 +98,7 @@ class Hud {
   }
 }
 
+const ROUNDS_TO_WIN = 2; // best of three
 const MAX_CROP = 0.25; // share of the world height a wide screen may trim
 const FLOOR_KEEP = 40; // world units of floor trimmed first; the rest comes off the sky
 
@@ -178,17 +184,40 @@ class Game {
     this.p1 = new Fighter({ name: cfg.p1.name, ch: cfg.p1.ch, input: i1, side: 0 });
     this.p2 = new Fighter({ name: cfg.p2.name, ch: cfg.p2.ch, input: i2, side: 1 });
     this.ai = cfg.mode === 'cpu' ? new AIController(cfg.difficulty, i2) : null;
-    this.fx.clear();
-    this.resetFx();
-    this.phase = 'intro';
-    this.phaseT = 0;
+    this.round = 0;
+    this.won = [0, 0];
     this.paused = false;
-    this.winner = this.loser = null;
-    this.p1.setState('intro', 1);
-    this.p2.setState('intro', 1);
     this.hud.setup(this.p1, this.p2);
     this.hud.show(true);
+    this.nextRound();
     this.ensureLoop();
+  }
+
+  // Best of three: hp and positions reset, power and stats carry over.
+  nextRound() {
+    this.round++;
+    for (const f of [this.p1, this.p2]) {
+      const { power, stats } = f;
+      f.reset(f.side === 0 ? 440 : VIEW_W - 440, f.side === 0 ? 1 : -1);
+      if (this.round > 1) Object.assign(f, { power, stats });
+    }
+    if (this.ai) this.ai = new AIController(this.ai.level, this.inputs[1]);
+    this.fx.clear();
+    this.resetFx();
+    this.shots = [];
+    this.phase = 'intro';
+    // round 1 opens with the names; later rounds go straight to the round call
+    this.phaseT = this.round === 1 ? 0 : 70;
+    this.winner = this.loser = null;
+    const pose = this.round === 1 ? 'intro' : 'idle';
+    this.p1.setState(pose, true);
+    this.p2.setState(pose, true);
+    this.hud.rounds(this.won);
+    this.hud.update(this.p1, this.p2);
+  }
+
+  get finalRound() {
+    return this.won[0] === ROUNDS_TO_WIN - 1 && this.won[1] === ROUNDS_TO_WIN - 1;
   }
 
   setStage(id) {
@@ -281,9 +310,11 @@ class Game {
     const t = this.phaseT;
     if (t === 1) this.hud.announce(`${this.p1.name} vs ${this.p2.name}`, 'names');
     if (t === 85) {
-      this.p1.setState('idle', 8);
-      this.p2.setState('idle', 8);
-      this.hud.announce('READY?');
+      if (this.p1.state === 'intro') this.p1.setState('idle', 8);
+      if (this.p2.state === 'intro') this.p2.setState('idle', 8);
+      if (this.finalRound) this.hud.announce('FINAL ROUND', 'round final');
+      else this.hud.announce(`ROUND ${this.round}`, 'round');
+      Sound.ui();
     }
     if (t === 140) {
       this.phase = 'fight';
@@ -301,9 +332,11 @@ class Game {
       w.setState('win', 8);
       this.crowd.excite(1);
     }
-    if (t === 250) {
+    const matchOver = this.won[w.side] >= ROUNDS_TO_WIN;
+    if (!matchOver && t === 200) this.nextRound();
+    if (matchOver && t === 250) {
       this.phase = 'over';
-      this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2 });
+      this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2, won: this.won });
     }
   }
 
@@ -418,6 +451,8 @@ class Game {
     Sound.crowd();
     this.crowd.excite(1.5);
     this.hud.announce('K.O.', 'ko');
+    this.won[winner.side]++;
+    this.hud.rounds(this.won);
   }
 
   render() {

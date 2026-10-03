@@ -93,6 +93,44 @@ button {
   text-shadow: 0 calc(var(--s) * 3px) 0 #000;
 }
 
+/* name row: name at the outer edge, round-win pips at the inner edge (next to VS) */
+#hud .name {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#hud .p2 .name {
+  flex-direction: row-reverse;
+}
+
+#hud .pips {
+  display: flex;
+  gap: calc(var(--s) * 8px);
+}
+
+#hud .pips i {
+  width: calc(var(--s) * 20px);
+  height: calc(var(--s) * 20px);
+  border-radius: 50%;
+  border: calc(var(--s) * 3px) solid rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.45);
+  box-shadow: 0 calc(var(--s) * 2px) 0 #000;
+}
+
+#hud .pips i.won {
+  border-color: #fff;
+  background: radial-gradient(circle at 35% 35%, #fff6c9, var(--gold) 55%, #b57d00);
+  box-shadow: 0 0 calc(var(--s) * 12px) var(--gold), 0 calc(var(--s) * 2px) 0 #000;
+  animation: pipwin 0.5s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes pipwin {
+  from {
+    transform: scale(2.2);
+  }
+}
+
 #hud .hp {
   position: relative;
   height: calc(var(--s) * 30px);
@@ -292,6 +330,15 @@ button {
 
 #announcer.fight {
   color: var(--gold);
+}
+
+#announcer.round {
+  font-size: calc(var(--s) * 110px);
+  color: var(--ink);
+}
+
+#announcer.round.final {
+  color: var(--red);
 }
 
 #announcer.ko {
@@ -1197,6 +1244,7 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   #hud .fill.low,
   #hud .pw[data-lv='2'],
+  #hud .pips i.won,
   .tb.sup .ring,
   .tb.on::after {
     animation: none !important;

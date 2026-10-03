@@ -228,13 +228,14 @@
     if (document.hidden && inMatch && !game.paused) pause(true);
   });
 
-  function showResult({ winner, p1, p2 }) {
+  function showResult({ winner, p1, p2, won }) {
     const youWin = winner === p1;
     $('res-kicker').textContent = youWin ? 'VICTORY' : 'DEFEAT';
     $('res-kicker').className = 'result-kicker ' + (youWin ? 'win' : 'lose');
     $('res-name').textContent = `${winner.name} wins`;
     const rows = [
       ['', p1.name, p2.name],
+      ['Rounds won', won[0], won[1]],
       ['Hits landed', p1.stats.hits, p2.stats.hits],
       ['Damage dealt', p1.stats.dmg, p2.stats.dmg],
       ['Best combo', p1.stats.maxCombo, p2.stats.maxCombo],

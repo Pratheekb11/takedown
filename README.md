@@ -38,7 +38,7 @@ Phones get a fixed stick on the left thumb and three buttons (PUNCH, KICK, SUPER
 - **Combos:** a hit that lands can be cancelled into a stronger move: jab → punch → hook → uppercut or kick. A special can be chained off any hit.
 - **Counters:** hitting an opponent in the middle of their own attack is a counter and does +25% damage.
 - **Air attack:** attacking while in the air does an air attack.
-- **End of fight:** the match ends with a K.O.
+- **Rounds:** best of three. A K.O. wins the round; win two rounds to win the match. Health resets each round, power carries over.
 
 ## Roster and specials
 
