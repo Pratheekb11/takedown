@@ -19,6 +19,7 @@ const Sound = (() => {
     master = ctx.createGain();
     master.gain.value = 0.55;
     master.connect(ctx.destination);
+    loadClips();
     noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 1.5, ctx.sampleRate);
     const d = noiseBuf.getChannelData(0);
     for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
@@ -75,9 +76,58 @@ const Sound = (() => {
     speech.addEventListener('voiceschanged', pickVoice);
   }
 
+  // Recorded announcer clips (tools/build_voice.py), keyed like "round_one". Loaded on
+  // the first user tap; lines without a clip fall back to the speech synthesizer.
+  const clipKey = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+  const clips = {};
+  let clipsLoading = false;
+  let voiceSrc = null;
+  let voiceEnd = 0; // ctx time the current/queued line finishes
+
+  function loadClips() {
+    if (clipsLoading || typeof VOICE_CLIPS === 'undefined') return;
+    clipsLoading = true;
+    for (const k of VOICE_CLIPS) {
+      fetch(`assets/voice/${k}.mp3`)
+        .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
+        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej)))
+        .then((buf) => (clips[k] = buf))
+        .catch(() => {});
+    }
+  }
+
+  // Plays clips back to back (e.g. "ryu" "versus" "sagat"). Returns false if any is missing.
+  function playClips(keys, interrupt) {
+    if (!ctx || !keys.every((k) => clips[k])) return false;
+    const now = ctx.currentTime;
+    if (interrupt && voiceSrc) {
+      try {
+        voiceSrc.stop();
+      } catch (e) {
+        // already stopped
+      }
+    }
+    let t = interrupt ? now : Math.max(now, voiceEnd);
+    for (const k of keys) {
+      const src = ctx.createBufferSource();
+      src.buffer = clips[k];
+      const g = ctx.createGain();
+      g.gain.value = 1.6; // the announcer sits above the fight
+      src.connect(g).connect(master);
+      src.start(t);
+      t += clips[k].duration - 0.06;
+      voiceSrc = src;
+    }
+    voiceEnd = t;
+    return true;
+  }
+
+  // text: what to say. parts: clip keys for it (default: the whole text as one clip).
   // interrupt: cut off whatever is being said (default). Off = wait for it to finish.
-  function say(text, { rate = 0.9, pitch = 0.55, volume = 1, interrupt = true } = {}) {
-    if (!speech || muted) return;
+  function say(text, { rate = 0.9, pitch = 0.55, volume = 1, interrupt = true, parts } = {}) {
+    if (muted) return;
+    if (playClips(parts || [clipKey(text)], interrupt)) return;
+    if (!speech) return;
     if (interrupt) speech.cancel(); // never let stale lines pile up
     const u = new SpeechSynthesisUtterance(text);
     if (voice) u.voice = voice;
@@ -90,6 +140,15 @@ const Sound = (() => {
 
   function hush() {
     if (speech) speech.cancel();
+    if (voiceSrc) {
+      try {
+        voiceSrc.stop();
+      } catch (e) {
+        // already stopped
+      }
+      voiceSrc = null;
+      voiceEnd = 0;
+    }
   }
 
   return {

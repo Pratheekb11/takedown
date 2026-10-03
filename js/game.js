@@ -103,6 +103,7 @@ const ROUND_WORDS = ['', 'one', 'two', 'three'];
 
 // Names are shown in capitals; speech engines spell all-caps words out letter by letter.
 const spoken = (s) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+const clipKey = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 const MAX_CROP = 0.25; // share of the world height a wide screen may trim
 const FLOOR_KEEP = 40; // world units of floor trimmed first; the rest comes off the sky
 
@@ -314,7 +315,10 @@ class Game {
     const t = this.phaseT;
     if (t === 1) {
       this.hud.announce(`${this.p1.name} vs ${this.p2.name}`, 'names');
-      Sound.say(`${spoken(this.p1.name)} versus ${spoken(this.p2.name)}`, { rate: 0.95 });
+      Sound.say(`${spoken(this.p1.ch.name)} versus ${spoken(this.p2.ch.name)}`, {
+        rate: 0.95,
+        parts: [clipKey(this.p1.ch.name), 'versus', clipKey(this.p2.ch.name)],
+      });
     }
     if (t === 85) {
       if (this.p1.state === 'intro') this.p1.setState('idle', 8);
@@ -347,7 +351,7 @@ class Game {
     }
     const matchOver = this.won[w.side] >= ROUNDS_TO_WIN;
     if (!matchOver && t === 200) this.nextRound();
-    if (matchOver && t === 150) Sound.say(`${spoken(w.name)} wins!`, { rate: 0.9 });
+    if (matchOver && t === 150) Sound.say(`${spoken(w.ch.name)} wins!`, { rate: 0.9, parts: [clipKey(w.ch.name), 'wins'] });
     if (matchOver && t === 250) {
       this.phase = 'over';
       this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2, won: this.won });

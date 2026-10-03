@@ -71,12 +71,22 @@ Only sheets with a full fighting set (idle, walk, punches or kicks, hit, knockdo
 
 ## Stages
 
-Each match picks one of three stages at random:
-- **Alley:** a night alley painted in code, with a crowd behind the fence.
-- **Gotham:** a Gotham street from The Adventures of Batman & Robin (Area 1-1).
-- **Funhouse:** the Joker's funhouse and amusement park from the same game (Area 1-2A).
+Each match picks one of three stages at random. All come from The Adventures of Batman & Robin backgrounds:
+- **Cafe** (default, also the menu backdrop): a CAFE storefront on a Gotham street (Area 1-1).
+- **Gotham:** a Gotham street with the skyline over a garage (Area 1-1).
+- **Funhouse:** the Joker's funhouse and amusement park (Area 1-2A).
 
-`python3 tools/build_stages.py` cuts the background sheets and writes `assets/stages/`. If those files are missing, the game uses only the alley.
+`python3 tools/build_stages.py` cuts the background sheets and writes `assets/stages/`. If those files are missing, the game falls back to a night alley painted in code.
+
+## Announcer
+
+Round calls, FIGHT, KNOCKOUT, fighter names and every special's name are voiced. The clips in `assets/voice/` are generated (no recordings of anyone) by `tools/build_voice.py` with the Piper neural TTS plus an arcade treatment in ffmpeg:
+
+```
+uv run --no-project --with piper-tts python tools/build_voice.py <piper-voice.onnx>
+```
+
+Re-run it after adding a character or renaming a special. Lines without a clip fall back to the browser's speech synthesizer where one is available.
 
 Every special is one of three types:
 - **Projectile:** the fighter throws or fires a shot that travels across the screen.
@@ -107,6 +117,7 @@ Hits in the game use that reach, so a punch connects where the art's fist actual
 | `tools/slice_sprites.py` | Sheet slicer: frame detection, shadow and grid cleanup, atlas packing, preview strips |
 | `tools/characters.json` | Per-character frame mapping and special-move config |
 | `tools/build_stages.py` | Stage builder: cuts background sheets and composes the stage pictures |
+| `tools/build_voice.py` | Announcer clips: Piper TTS + ffmpeg treatment, writes `assets/voice/` and `js/voice-data.js` |
 | `js/sprite-data.js` | Generated frame data for every atlas |
 | `js/sprites.js` | Atlas loading, drawing frames with pixel snapping, tinted silhouettes for hit flashes and afterimages |
 | `js/moves.js` | Move frame data, plus the three special-move templates |
