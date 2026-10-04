@@ -1014,6 +1014,12 @@ button {
   margin-bottom: 6px;
 }
 
+.credits .fine {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 kbd {
   display: inline-block;
   min-width: 24px;

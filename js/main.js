@@ -6,6 +6,7 @@
     title: $('scr-title'),
     setup: $('scr-setup'),
     howto: $('scr-howto'),
+    credits: $('scr-credits'),
     pause: $('scr-pause'),
     result: $('scr-result'),
   };

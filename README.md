@@ -2,7 +2,7 @@
 
 A 1v1 street fight game in plain JavaScript and Canvas, styled like 16-bit arcade fighters. It uses no libraries and has no build step. The fighters come from sprite sheets, which a Python tool cuts into animations.
 
-This is a private hobby build. The sprite sheets in `sprite_assets/` are ripped from commercial games (Capcom, Marvel, DC, Bandai Namco and others). They are kept out of git by `.gitignore`, along with the atlases generated from them. Don't publish them.
+The sprite sheets are ripped from commercial games (Capcom, Marvel, DC, Konami and others) by fans; see [Credits](#credits). The raw sheets in `sprite_assets/` stay local; the atlases cut from them (`assets/sprites/`, `assets/stages/`) are committed so the deployed game has its fighters.
 
 ## Run it
 
@@ -128,3 +128,26 @@ Hits in the game use that reach, so a punch connects where the art's fist actual
 | `js/effects.js`, `js/audio.js`, `js/input.js`, `js/main.js` | Particles, synthesized sound, input, menus and character select |
 
 The game renders at device resolution. 16-bit sprites (Ryu, Batman and others) are drawn with crisp pixels to keep the arcade look. High-detail art (Toki, Sagat and others) and the Scale2x-smoothed Batman & Robin villains are drawn smoothed.
+
+## Credits
+
+Sprite sheets were found on [The Spriters Resource](https://www.spriters-resource.com/). Credit to the fans who ripped them, as named on each sheet:
+
+| Ripper | Sheets |
+| --- | --- |
+| Lord Zymeth (Final Destination Pixelation) | Ryu, Sagat, Zangief, Fei Long, T. Hawk (Super Street Fighter II, SNES) |
+| Ultimecia | Batman, Catwoman, Scarecrow, The Joker (The Adventures of Batman & Robin, SNES); Superman (The Death and Return of Superman, SNES) |
+| Deathbringer | Clayface (Batman & Robin), extra Joker frames, Apocalypse (X-Men: Mutant Apocalypse, SNES) |
+| Frario / MichaFrar | The Penguin (Batman & Robin) |
+| Cyrus Annihilator | Juggernaut (X-Men: Mutant Apocalypse) |
+| Belial (a.k.a. Scorcher) | Wolverine (X-Men: Mutant Apocalypse) |
+| Magma MK-II | Area 1-1 and Area 1-2A backgrounds (Batman & Robin), used for all three stages |
+| not named on the sheet | Toki, Komaku (Fist of the North Star, arcade) |
+
+Games and characters belong to their owners: Super Street Fighter II © Capcom; The Adventures of Batman & Robin © Konami / DC; The Death and Return of Superman © Sunsoft / DC; X-Men: Mutant Apocalypse © Capcom / Marvel; Fist of the North Star (arcade) © Arc System Works / Sega.
+
+The announcer voice is generated with [Piper](https://github.com/rhasspy/piper). Fonts are Anton and Bangers from Google Fonts.
+
+Take Down is a free fan project. It is not affiliated with or endorsed by any of these companies.
+
+The game's title screen has a **Credits** page with the same list.
