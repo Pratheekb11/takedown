@@ -4,3 +4,4 @@ assets/sprites/
 assets/stages/
 tools/index/
 __pycache__/
+.vercel
