@@ -1,7 +1,5 @@
-# Ripped sprite sheets and the atlases cut from them stay local (copyrighted art).
+# Raw ripped sprite sheets stay local; the cut atlases in assets/ ship with the game.
 sprite_assets/
-assets/sprites/
-assets/stages/
 tools/index/
 __pycache__/
 .vercel
