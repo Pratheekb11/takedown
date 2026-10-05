@@ -84,7 +84,8 @@
         <h1 class="logo"><span class="l1">TAKE</span><span class="l2">DOWN</span></h1>
         <p class="tag">Street fight. No ring. One winner.</p>
         <div class="menu">
-          <button class="btn primary loading" data-go="setup" id="btn-play" disabled style="--p: 0">Loading fighters</button>
+          <button class="btn primary loading" data-go="setup" data-mode="versus" id="btn-play" disabled style="--p: 0">Loading fighters</button>
+          <button class="btn" data-go="setup" data-mode="arcade" id="btn-arcade" disabled>Arcade <small>beat 8 in a row</small></button>
           <button class="btn locked" disabled>Play vs Friend <small>coming soon</small></button>
           <button class="btn ghost" data-go="howto">How to play</button>
           <button class="btn ghost" data-go="credits">Credits</button>
@@ -110,6 +111,7 @@
           </div>
         </div>
         <p class="hint" id="pick-hint">Pick your fighter</p>
+        <p class="arcade-note">Arcade: beat 8 fighters in a row. The first two go easy on you.</p>
         <div class="roster" id="roster"></div>
         <div class="row">
           <button class="btn ghost" data-go="title">Back</button>
@@ -158,6 +160,7 @@
               <li>Landing hits and taking damage fills <b>POWER</b>. Half bar: special move. Full bar: super special. Every fighter has their own.</li>
               <li>Best of three rounds: two K.O.s wins. Power carries over between rounds.</li>
               <li>Each round lasts 99 seconds. If time runs out, whoever has more health wins it.</li>
+              <li><b>Arcade</b>: beat 8 fighters in a row. Lose and you can continue. Clear it and your fighter gets a star.</li>
               <li>Hit someone mid-attack for a <b>COUNTER</b> (bonus damage).</li>
               <li>Attack while jumping for a flying kick.</li>
               <li class="touch-only">Turn your phone sideways to play.</li>
@@ -204,6 +207,19 @@
           </div>
         </div>
         <div class="row"><button class="btn primary" data-go="title">Back</button></div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="scr-ladder">
+      <div class="panel small ladder">
+        <p class="result-kicker" id="lad-kicker">FIGHT 1 OF 8</p>
+        <div class="ladder-row" id="lad-row"></div>
+        <p class="lad-label">Next up</p>
+        <h2 class="result-name" id="lad-next"></h2>
+        <div class="menu">
+          <button class="btn primary" id="btn-lad-fight">Fight!</button>
+          <button class="btn ghost" id="btn-lad-quit">Quit arcade</button>
+        </div>
       </div>
     </section>
 

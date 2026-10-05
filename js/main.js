@@ -9,11 +9,12 @@
     credits: $('scr-credits'),
     pause: $('scr-pause'),
     result: $('scr-result'),
+    ladder: $('scr-ladder'),
   };
   const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   document.body.classList.toggle('is-touch', isTouch);
 
-  // Remembered between visits: picks, difficulty, mute. Storage can be missing or
+  // Remembered between visits: picks, difficulty, mute, arcade clears. Storage can be missing or
   // blocked (private mode); the game just starts fresh then.
   const STORE_KEY = 'takedown.settings';
   const saved = (() => {
@@ -25,11 +26,15 @@
   })();
   const save = () => {
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ pick: setup.pick, difficulty: setup.difficulty, muted: Sound.muted }));
+      localStorage.setItem(STORE_KEY, JSON.stringify({ pick: setup.pick, difficulty: setup.difficulty, muted: Sound.muted, cleared }));
     } catch (e) {
       // not saved; nothing else depends on it
     }
   };
+
+  // fighter id -> hardest difficulty that fighter has cleared arcade on
+  const LEVELS = ['easy', 'normal', 'hard'];
+  const cleared = saved.cleared && typeof saved.cleared === 'object' ? saved.cleared : {};
 
   const keyboard = new KeyboardController(KEYMAP_P1);
   const touch = new TouchController($('touch'));
@@ -49,9 +54,14 @@
     names: ['', ''],
     typed: [false, false],
     side: 0,
-    difficulty: ['easy', 'normal', 'hard'].includes(saved.difficulty) ? saved.difficulty : 'normal',
+    difficulty: LEVELS.includes(saved.difficulty) ? saved.difficulty : 'normal',
+    mode: 'versus', // or 'arcade'
     lastCfg: null,
   };
+
+  // Arcade run: a ladder of opponents fought in order. Losing offers a continue.
+  const ARCADE_FIGHTS = 8;
+  const arcade = { on: false, ladder: [], i: 0, continues: 0 };
 
   let inMatch = false;
 
@@ -75,11 +85,16 @@
 
   function go(name) {
     if (name === 'title') {
+      arcade.on = false;
       Sound.hush();
       setMatchUi(false);
       game.showcase(CHARS[setup.pick[0]], CHARS[setup.pick[1]]);
     }
-    if (name === 'setup') refreshSetup();
+    if (name === 'setup') {
+      screens.setup.classList.toggle('arcade', setup.mode === 'arcade');
+      if (setup.mode === 'arcade') setup.side = 0;
+      refreshSetup();
+    }
     show(name);
     game.resize(); // the backdrop is framed around the title layout
   }
@@ -100,6 +115,7 @@
       fullscreen(false);
       Sound.init();
       Sound.ui();
+      if (b.dataset.mode) setup.mode = b.dataset.mode;
       go(b.dataset.go);
     })
   );
@@ -118,7 +134,7 @@
     const side = setup.side;
     setup.pick[side] = id;
     if (!setup.typed[side]) setup.names[side] = CHARS[id].name;
-    if (side === 0) setup.side = 1; // then pick the opponent
+    if (side === 0 && setup.mode !== 'arcade') setup.side = 1; // then pick the opponent
     refreshSetup();
     save();
   }
@@ -155,7 +171,7 @@
     r.type = 'button';
     r.setAttribute('aria-label', 'Random fighter');
     r.innerHTML = `<canvas width="56" height="64"></canvas><span>RANDOM</span>`;
-    r.addEventListener('click', () => choose(randomId(setup.pick[1 - setup.side])));
+    r.addEventListener('click', () => choose(randomId(setup.mode === 'arcade' ? null : setup.pick[1 - setup.side])));
     root.appendChild(r);
     const drawQ = () => {
       const g = r.querySelector('canvas').getContext('2d');
@@ -174,7 +190,7 @@
 
     slots.forEach((el, side) =>
       el.addEventListener('click', (e) => {
-        if (e.target.tagName === 'INPUT') return;
+        if (e.target.tagName === 'INPUT' || setup.mode === 'arcade') return;
         setup.side = side;
         refreshSetup();
       })
@@ -204,10 +220,23 @@
       if (document.activeElement !== nameInputs[side]) nameInputs[side].value = setup.names[side];
       slots[side].classList.toggle('on', setup.side === side);
     });
+    const arc = setup.mode === 'arcade';
     $('pick-hint').textContent = setup.side === 0 ? 'Pick your fighter' : 'Pick your opponent';
+    $('btn-fight').textContent = arc ? 'Start!' : 'Fight!';
     cards.forEach((c) => {
       c.el.classList.toggle('p1', c.id === setup.pick[0]);
-      c.el.classList.toggle('p2', c.id === setup.pick[1]);
+      c.el.classList.toggle('p2', !arc && c.id === setup.pick[1]);
+      const lv = cleared[c.id];
+      let star = c.el.querySelector('.star');
+      if (lv && !star) {
+        star = document.createElement('i');
+        c.el.appendChild(star);
+      }
+      if (star) {
+        star.className = 'star ' + lv;
+        star.textContent = '\u2605';
+        star.title = `Arcade cleared on ${lv}`;
+      }
     });
     $('diff').querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.d === setup.difficulty));
   }
@@ -260,6 +289,11 @@
 
   $('btn-fight').addEventListener('click', () => {
     Sound.init();
+    if (setup.mode === 'arcade') {
+      startArcade();
+      fullscreen(true);
+      return;
+    }
     const name = (side) => (setup.names[side] || CHARS[setup.pick[side]].name).slice(0, 12);
     startMatch({
       mode: 'cpu',
@@ -270,6 +304,70 @@
     });
     fullscreen(true);
   });
+
+  // ---------- Arcade ----------
+  const myName = () => (setup.names[0] || CHARS[setup.pick[0]].name).slice(0, 12);
+
+  function startArcade() {
+    const others = setup.ids.filter((id) => id !== setup.pick[0]);
+    for (let i = others.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [others[i], others[j]] = [others[j], others[i]];
+    }
+    Object.assign(arcade, { on: true, ladder: others.slice(0, ARCADE_FIGHTS), i: 0, continues: 0, level: setup.difficulty });
+    showLadder();
+  }
+
+  // The first two fights are one level gentler than the one picked.
+  const arcadeLevel = () => LEVELS[Math.max(0, LEVELS.indexOf(arcade.level) - (arcade.i < 2 ? 1 : 0))];
+
+  function showLadder() {
+    setMatchUi(false);
+    Sound.hush();
+    // backdrop: you and the next opponent squaring up
+    game.showcase(CHARS[setup.pick[0]], CHARS[arcade.ladder[arcade.i]]);
+    const n = arcade.ladder.length;
+    const last = arcade.i === n - 1;
+    $('lad-kicker').textContent = last ? 'FINAL FIGHT' : `FIGHT ${arcade.i + 1} OF ${n}`;
+    $('lad-kicker').className = 'result-kicker ' + (last ? 'lose' : 'win');
+    $('lad-next').textContent = CHARS[arcade.ladder[arcade.i]].name;
+    const row = $('lad-row');
+    row.innerHTML = '';
+    arcade.ladder.forEach((id, k) => {
+      const c = CHARS[id];
+      const d = document.createElement('div');
+      d.className = 'rung' + (k < arcade.i ? ' beaten' : k === arcade.i ? ' next' : '');
+      const cv = document.createElement('canvas');
+      cv.width = 88;
+      cv.height = 104;
+      d.appendChild(cv);
+      row.appendChild(d);
+      const g = cv.getContext('2d');
+      g.imageSmoothingEnabled = false;
+      const f = c.frames[c.anims.idle[0]];
+      drawPreview(g, c, c.anims.idle[0], 44, 100, Math.min(80 / f.w, 92 / f.h) / c.scale, -1);
+    });
+    show('ladder');
+  }
+
+  function arcadeFight() {
+    const id = arcade.ladder[arcade.i];
+    startMatch({
+      mode: 'cpu',
+      difficulty: arcadeLevel(),
+      p1: { name: myName(), ch: CHARS[setup.pick[0]] },
+      p2: { name: CHARS[id].name, ch: CHARS[id] },
+      stage: pick(stageIds()),
+    });
+  }
+
+  $('btn-lad-fight').addEventListener('click', () => {
+    Sound.init();
+    Sound.ui();
+    arcadeFight();
+    fullscreen(true);
+  });
+  $('btn-lad-quit').addEventListener('click', () => go('title'));
 
   function pause(on) {
     if (!inMatch || game.phase === 'over') return;
@@ -284,7 +382,20 @@
   $('btn-resume').addEventListener('click', () => pause(false));
   $('btn-restart').addEventListener('click', () => startMatch(setup.lastCfg));
   $('btn-quit').addEventListener('click', () => go('title'));
-  $('btn-rematch').addEventListener('click', () => startMatch(setup.lastCfg));
+  // Result buttons: rematch / menu in versus. In arcade: next fight or continue,
+  // and after the last win, a fresh run.
+  $('btn-rematch').addEventListener('click', () => {
+    if (!arcade.on) return startMatch(setup.lastCfg);
+    if (arcade.result === 'won') {
+      arcade.i++;
+      showLadder();
+    } else if (arcade.result === 'lost') {
+      arcade.continues++;
+      arcadeFight();
+    } else {
+      startArcade();
+    }
+  });
   $('btn-menu').addEventListener('click', () => go('title'));
   $('btn-mute').addEventListener('click', (e) => {
     e.currentTarget.classList.toggle('off', Sound.toggle());
@@ -304,7 +415,9 @@
     $('res-kicker').textContent = youWin ? 'VICTORY' : 'DEFEAT';
     $('res-kicker').className = 'result-kicker ' + (youWin ? 'win' : 'lose');
     $('res-name').textContent = `${winner.name} wins`;
-    const rows = [
+    $('btn-rematch').textContent = 'Rematch';
+    $('btn-menu').textContent = 'Main menu';
+    let rows = [
       ['', p1.name, p2.name],
       ['Rounds won', won[0], won[1]],
       ['Hits landed', p1.stats.hits, p2.stats.hits],
@@ -312,6 +425,27 @@
       ['Best combo', p1.stats.maxCombo, p2.stats.maxCombo],
       ['Supers used', p1.stats.supers, p2.stats.supers],
     ];
+    if (arcade.on) {
+      const champ = youWin && arcade.i === arcade.ladder.length - 1;
+      arcade.result = champ ? 'champion' : youWin ? 'won' : 'lost';
+      $('btn-rematch').textContent = champ ? 'Play again' : youWin ? 'Next fight' : 'Continue';
+      $('btn-menu').textContent = 'Quit arcade';
+      if (champ) {
+        $('res-kicker').textContent = 'CHAMPION';
+        $('res-name').textContent = `${p1.name} beat them all`;
+        const id = setup.pick[0];
+        if (LEVELS.indexOf(arcade.level) > LEVELS.indexOf(cleared[id] || '')) {
+          cleared[id] = arcade.level;
+          save();
+        }
+        rows = [
+          ['', 'Arcade'],
+          ['Fighters beaten', arcade.ladder.length],
+          ['Continues used', arcade.continues],
+          ['Difficulty', arcade.level],
+        ];
+      }
+    }
     const esc = (v) => String(v).replace(/[&<>"]/g, (ch) => `&#${ch.charCodeAt(0)};`);
     $('res-stats').innerHTML = rows
       .map((r, i) => `<tr>${r.map((c) => (i === 0 ? `<th>${esc(c)}</th>` : `<td>${esc(c)}</td>`)).join('')}</tr>`)
@@ -331,6 +465,7 @@
     playBtn.disabled = false;
     playBtn.classList.remove('loading');
     playBtn.textContent = 'Play vs Computer';
+    $('btn-arcade').disabled = false;
     if (!Object.keys(CHARS).length) {
       document.querySelector('#scr-title .tag').textContent = 'No fighters found: run tools/slice_sprites.py build';
       return;
