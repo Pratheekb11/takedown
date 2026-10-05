@@ -1154,6 +1154,33 @@ kbd {
   }
 }
 
+/* Portrait phones on the menu: a quiet nudge before the fight starts. */
+.turn-tip {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .is-touch .turn-tip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+    color: var(--muted);
+    font-family: var(--display);
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .turn-tip .mini-phone {
+    width: 14px;
+    height: 24px;
+    border: 2px solid var(--ink);
+    border-radius: 3px;
+    animation: rotatephone 1.6s ease-in-out infinite;
+  }
+}
+
 @keyframes rotatephone {
   0%,
   20% {
