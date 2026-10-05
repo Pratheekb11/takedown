@@ -785,6 +785,14 @@ button {
   background: transparent;
 }
 
+/* Play button while the fighters load: it fills up like a power bar. */
+.btn.primary.loading {
+  background: linear-gradient(90deg, var(--red) calc(var(--p) * 100%), #2a1420 calc(var(--p) * 100%));
+  color: rgba(255, 255, 255, 0.75);
+  cursor: progress;
+  transition: background 0.2s;
+}
+
 .btn.locked {
   opacity: 0.5;
   cursor: not-allowed;

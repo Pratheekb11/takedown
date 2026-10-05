@@ -260,6 +260,20 @@ def strips(only=None):
         print(cid, out.size)
 
 
+def save_atlas(atlas, path):
+    """Indexed PNG when the atlas has at most 256 colours (exact, about half the bytes),
+    plain RGBA otherwise."""
+    flat = atlas.reshape(-1, 4).copy()
+    flat[flat[:, 3] == 0] = 0
+    cols, inv = np.unique(flat, axis=0, return_inverse=True)
+    if len(cols) > 256:
+        Image.fromarray(atlas).save(path, optimize=True)
+        return
+    im = Image.fromarray(inv.reshape(atlas.shape[:2]).astype(np.uint8), 'P')
+    im.putpalette(cols[:, :3].astype(np.uint8).flatten().tolist())
+    im.save(path, optimize=True, transparency=bytes(cols[:, 3].astype(np.uint8).tolist()))
+
+
 def build():
     cfg = json.load(open(CONFIG))
     os.makedirs(OUT_DIR, exist_ok=True)
@@ -286,6 +300,8 @@ def build():
             if f < 0.9:
                 # HD art: keep 3x the detail it needs, drawn smoothly
                 r = min(1.0, 3 * f)
+                if r > 0.85:
+                    r = 1.0  # a few % smaller isn't worth resampling (it smears the palette into thousands of colours)
                 if r < 1:
                     for k, img in crops.items():
                         im = Image.fromarray(img)
@@ -328,7 +344,7 @@ def build():
         for k, img in crops.items():
             h, w = img.shape[:2]
             atlas[meta[k]['y']:meta[k]['y'] + h, meta[k]['x']:meta[k]['x'] + w] = img
-        Image.fromarray(atlas).save(os.path.join(OUT_DIR, f'{cid}.png'), optimize=True)
+        save_atlas(atlas, os.path.join(OUT_DIR, f'{cid}.png'))
         frames = [meta[k] | {'id': k} for k in used]
         pos = {k: i for i, k in enumerate(used)}
         data[cid] = {

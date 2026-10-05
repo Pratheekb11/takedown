@@ -7,14 +7,22 @@ const PIX = 0.25;
 
 const CHARS = {}; // id -> character (sprite atlas + animation data), filled by loadCharacters()
 
-function loadCharacters() {
-  const jobs = Object.entries(typeof SPRITE_DATA === 'undefined' ? {} : SPRITE_DATA).map(
+// onProgress(done, total) runs as each atlas arrives, for the loading bar.
+function loadCharacters(onProgress = () => {}) {
+  const entries = Object.entries(typeof SPRITE_DATA === 'undefined' ? {} : SPRITE_DATA);
+  let done = 0;
+  const tick = () => onProgress(++done, entries.length);
+  const jobs = entries.map(
     ([id, d]) =>
       new Promise((resolve) => {
         const img = new Image();
-        img.onload = () => resolve(makeCharacter(id, d, img));
+        img.onload = () => {
+          tick();
+          resolve(makeCharacter(id, d, img));
+        };
         img.onerror = () => {
           console.warn('Take Down: missing sprite atlas', d.image);
+          tick();
           resolve(null);
         };
         img.src = d.image;

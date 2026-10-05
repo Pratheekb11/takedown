@@ -269,8 +269,14 @@
     show('result');
   }
 
-  // Boot: load sprite atlases, then show the menu.
-  Promise.all([loadCharacters(), loadStages()]).then(() => {
+  // Boot: load sprite atlases, then show the menu. Until then the Play button is a
+  // progress bar, so an early tap can't open an empty fighter select.
+  const playBtn = $('btn-play');
+  const progress = (done, total) => playBtn.style.setProperty('--p', (done / total).toFixed(3));
+  Promise.all([loadCharacters(progress), loadStages()]).then(() => {
+    playBtn.disabled = false;
+    playBtn.classList.remove('loading');
+    playBtn.textContent = 'Play vs Computer';
     if (!Object.keys(CHARS).length) {
       document.querySelector('#scr-title .tag').textContent = 'No fighters found: run tools/slice_sprites.py build';
       return;
