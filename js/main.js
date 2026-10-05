@@ -37,6 +37,7 @@
 
   function setMatchUi(on) {
     inMatch = on;
+    document.body.classList.toggle('in-match', on);
     $('topbar').classList.toggle('hidden', !on);
     $('touch').classList.toggle('hidden', !on || !isTouch);
     const input = on ? game.inputs[0] : null;
@@ -56,8 +57,20 @@
     show(name);
   }
 
+  // Phones: go fullscreen on the first menu tap so browser bars don't eat the
+  // screen; lock landscape once the fight starts.
+  function fullscreen(lock) {
+    if (!isTouch) return;
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    const lockIt = () => lock && screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape');
+    const p = document.fullscreenElement || document.webkitFullscreenElement || !req ? Promise.resolve() : Promise.resolve(req.call(el));
+    p.then(lockIt).catch(() => {});
+  }
+
   document.querySelectorAll('[data-go]').forEach((b) =>
     b.addEventListener('click', () => {
+      fullscreen(false);
       Sound.init();
       Sound.ui();
       go(b.dataset.go);
@@ -194,15 +207,7 @@
       p2: { name: name(1), ch: CHARS[setup.pick[1]] },
       stage: pick(stageIds()),
     });
-    if (isTouch) {
-      const el = document.documentElement;
-      const fs = el.requestFullscreen || el.webkitRequestFullscreen;
-      if (fs && !document.fullscreenElement) {
-        Promise.resolve(fs.call(el))
-          .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'))
-          .catch(() => {});
-      }
-    }
+    fullscreen(true);
   });
 
   function pause(on) {
@@ -251,6 +256,7 @@
     game.inputs[0].reset();
     $('topbar').classList.add('hidden');
     $('touch').classList.add('hidden');
+    document.body.classList.remove('in-match');
     show('result');
   }
 
