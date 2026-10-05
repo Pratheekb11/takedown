@@ -176,6 +176,7 @@ def scale2x(img):
 def cut(c, a, fg, lab, boxes, used):
     crops = {}
     shadows = shadow_colors(c, a, fg, lab, boxes)
+    floor = c.get('strip_rows', 14)  # how far up from the bottom edge a shadow may sit
     for k in used:
         y0, x0, y1, x1, li = boxes[k]
         mask = (lab[y0:y1, x0:x1] == li) & fg[y0:y1, x0:x1]
@@ -183,7 +184,7 @@ def cut(c, a, fg, lab, boxes, used):
         img[~mask] = 0
         for r, g, b in shadows:  # baked-in floor shadows: only near the feet
             kill = (img[..., 0] == r) & (img[..., 1] == g) & (img[..., 2] == b)
-            kill[: max(0, img.shape[0] - 14)] = False
+            kill[: max(0, img.shape[0] - floor)] = False
             img[kill] = 0
         strip_dashes(img)
         ys, xs = np.nonzero(img[..., 3])

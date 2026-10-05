@@ -610,6 +610,7 @@
         "#000070"
       ],
       "strip": "auto",
+      "strip_rows": 24,
       "super1": {
         "type": "rush",
         "anim": "hawk",
