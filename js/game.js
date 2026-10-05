@@ -240,6 +240,7 @@ class Game {
     if (this.ai) this.p2.dmgMul = this.ai.cfg.dmg;
     this.round = 0;
     this.won = [0, 0];
+    this.roundLog = []; // one entry per decided round: who won, health and seconds left
     this.paused = false;
     this.hud.setup(this.p1, this.p2);
     this.hud.show(true);
@@ -413,12 +414,16 @@ class Game {
       w.setState('win', 8);
       this.crowd.excite(1);
     }
+    if (t === 70 && w.hp >= MAX_HP && !this.timeUp) {
+      this.hud.announce('PERFECT', 'round final');
+      Sound.say('Perfect!', { rate: 0.9 });
+    }
     const matchOver = this.won[w.side] >= ROUNDS_TO_WIN;
     if (!matchOver && t === 200) this.nextRound();
     if (matchOver && t === 150) Sound.say(`${spoken(w.ch.name)} wins!`, { rate: 0.9, parts: [clipKey(w.ch.name), 'wins'] });
     if (matchOver && t === 250) {
       this.phase = 'over';
-      this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2, won: this.won });
+      this.hooks.onEnd({ winner: w, loser: this.loser, p1: this.p1, p2: this.p2, won: this.won, rounds: this.roundLog });
     }
   }
 
@@ -543,6 +548,7 @@ class Game {
     this.hud.announce('TIME OVER', 'round final');
     Sound.say('Time over!', { rate: 0.9 });
     this.won[w.side]++;
+    this.roundLog.push({ side: w.side, hp: w.hp, sec: 0 });
     this.hud.rounds(this.won);
   }
 
@@ -561,6 +567,7 @@ class Game {
     this.hud.announce('K.O.', 'ko');
     Sound.say('Knockout!', { rate: 0.7, pitch: 0.45 });
     this.won[winner.side]++;
+    this.roundLog.push({ side: winner.side, hp: winner.hp, sec: Math.ceil(this.clockT / 60) });
     this.hud.rounds(this.won);
   }
 

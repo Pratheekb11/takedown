@@ -1209,6 +1209,15 @@ kbd {
   }
 }
 
+.lad-score {
+  margin: 8px 0 0;
+  font-family: var(--display);
+  letter-spacing: 0.12em;
+  font-size: 14px;
+  color: var(--gold);
+  white-space: pre;
+}
+
 .lad-label {
   margin: 14px 0 0;
   font-family: var(--display);
@@ -1273,6 +1282,51 @@ kbd {
 .stats td {
   padding: 6px 4px;
   border-top: 1px solid var(--line);
+}
+
+/* Short landscape phones: heading and buttons on the left, the table on the right,
+   so the buttons never fall below the screen. */
+@media (max-height: 500px) {
+  #scr-result .panel {
+    width: min(760px, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    column-gap: 20px;
+    align-items: center;
+  }
+  #scr-result .result-kicker,
+  #scr-result .result-name,
+  #scr-result .menu {
+    grid-column: 1;
+  }
+  #scr-result .result-name {
+    font-size: 20px;
+  }
+  #scr-result .stats {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    margin: 0;
+    font-size: 13px;
+  }
+  #scr-result .stats td {
+    padding: 3px 4px;
+  }
+  #scr-result .panel .menu {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+}
+
+/* score table: the running totals stand out */
+.stats.two tr.total td {
+  color: var(--gold);
+  font-family: var(--display);
+  letter-spacing: 0.06em;
+}
+
+.stats.two td:last-child {
+  text-align: right;
 }
 
 .stats td:first-child {

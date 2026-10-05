@@ -17,28 +17,31 @@ Both tools need `pillow`, `numpy` and `scipy`.
 
 ## Modes
 
-- **Play vs Computer**: available, with Easy, Normal and Hard difficulty.
+- **Play vs Computer**: one match, with Easy, Normal and Hard difficulty. Picks, difficulty and mute are remembered between visits.
+- **Arcade**: beat 8 random fighters in a row; the first two fights are one level easier. Each won fight scores damage dealt, best combo, and the health and seconds left in every round you took (a full-health round is a PERFECT, +5,000), multiplied ×1 / ×1.5 / ×2 by difficulty. Losing offers a continue, which costs 20% of the score. Clearing it saves the best score and puts a star on the fighter's card (bronze, silver, gold by difficulty).
 - **Play vs Friend**: planned. Every fighter is already driven through a `PlayerInput`, so a second keyboard or touch controller can drive player 2.
 
 ## Controls
 
-| Action | Keyboard | Touch |
-| --- | --- | --- |
-| Move | `A` `D` or arrow keys | slide the stick left / right |
-| Jump | `W`, `Space` or `↑` | flick the stick up |
-| Block (hold) | `S` or `↓` | pull the stick down |
-| Jab / Punch / Hook | `J` / `K` / `L` | keep tapping PUNCH (jab → punch → hook → uppercut) |
-| Uppercut / Kick | `I` / `U` | stick down + PUNCH / KICK |
-| Special (½ power bar) | `O` | SUPER (glows cyan) |
-| Super special (full power bar) | `P` | SUPER (glows gold) |
-| Pause | `Esc` | ❚❚ |
+| Action | Keyboard | Touch | Gamepad |
+| --- | --- | --- | --- |
+| Move | `A` `D` or arrow keys | slide the stick left / right | stick / d-pad |
+| Jump | `W`, `Space` or `↑` | flick the stick up | up, or A |
+| Block (hold) | `S` or `↓` | pull the stick down | down |
+| Jab / Punch / Hook | `J` / `K` / `L` | keep tapping PUNCH (jab → punch → hook → uppercut) | keep tapping X |
+| Uppercut / Kick | `I` / `U` | stick down + PUNCH / KICK | Y / B |
+| Special (½ power bar) | `O` | SUPER (glows cyan) | LB |
+| Super special (full power bar) | `P` | SUPER (glows gold) | RB |
+| Pause | `Esc` | ❚❚ | Start |
+
+Gamepads (standard layout: Xbox, PlayStation, most USB pads) also drive the menus: the stick moves between buttons, A presses, B goes back.
 
 Phones get a fixed stick on the left thumb and three buttons (PUNCH, KICK, SUPER) on the right. SUPER fires the biggest move the power bar can pay for.
 
 - **Combos:** a hit that lands can be cancelled into a stronger move: jab → punch → hook → uppercut or kick. A special can be chained off any hit.
 - **Counters:** hitting an opponent in the middle of their own attack is a counter and does +25% damage.
 - **Air attack:** attacking while in the air does an air attack.
-- **Rounds:** best of three. A K.O. wins the round; win two rounds to win the match. Health resets each round, power carries over.
+- **Rounds:** best of three, 99 seconds each. A K.O. wins the round; when time runs out the fighter with more health takes it (level health is a draw and the round is fought again). Win two rounds to win the match. Health resets each round, power carries over. The CPU can't use a super in the first 3 seconds of a round.
 
 ## Roster and specials
 
@@ -110,6 +113,14 @@ What the slicer does automatically:
 
 Hits in the game use that reach, so a punch connects where the art's fist actually is. Fighters without knockdown art tip their hit pose over when they fall.
 
+## Deploy
+
+```
+tools/deploy.sh
+```
+
+It runs `tools/build_sw.py` (refreshes `sw.js`: the list of shipped files and a version hash of them) and then `npx vercel deploy --prod`. The service worker caches the whole game, so repeat visits load from disk and the game plays offline; a changed build downloads in the background and is used from the next visit. Deploying without rebuilding `sw.js` leaves players on the old cached version.
+
 ## Code
 
 | File | Role |
@@ -117,7 +128,8 @@ Hits in the game use that reach, so a punch connects where the art's fist actual
 | `tools/slice_sprites.py` | Sheet slicer: frame detection, shadow and grid cleanup, atlas packing, preview strips |
 | `tools/characters.json` | Per-character frame mapping and special-move config |
 | `tools/build_stages.py` | Stage builder: cuts background sheets and composes the stage pictures |
-| `tools/build_voice.py` | Announcer clips: Piper TTS + ffmpeg treatment, writes `assets/voice/` and `js/voice-data.js` |
+| `tools/build_voice.py` | Announcer clips: Piper TTS + ffmpeg treatment, writes `assets/voice/` and `js/voice-data.js` (`--missing` renders only new lines) |
+| `tools/build_sw.py`, `sw.js` | Offline cache: precache list + version hash, generated before each deploy |
 | `js/sprite-data.js` | Generated frame data for every atlas |
 | `js/sprites.js` | Atlas loading, drawing frames with pixel snapping, tinted silhouettes for hit flashes and afterimages |
 | `js/moves.js` | Move frame data, plus the three special-move templates |
@@ -125,7 +137,7 @@ Hits in the game use that reach, so a punch connects where the art's fist actual
 | `js/ai.js` | CPU opponent. It reacts to what it saw a few frames earlier and picks attacks that the character's reach can land |
 | `js/game.js` | Fixed 60 Hz loop, hitstop, super freeze, slow-motion K.O., screen shake, DOM HUD |
 | `js/stage.js` | Stages: the code-painted alley with its crowd, and the built stage pictures |
-| `js/effects.js`, `js/audio.js`, `js/input.js`, `js/main.js` | Particles, synthesized sound, input, menus and character select |
+| `js/effects.js`, `js/audio.js`, `js/input.js`, `js/main.js` | Particles, sound and announcer clips, keyboard / touch / gamepad input, menus, character select, arcade and scoring |
 
 The game renders at device resolution. 16-bit sprites (Ryu, Batman and others) are drawn with crisp pixels to keep the arcade look. High-detail art (Toki, Sagat and others) and the Scale2x-smoothed Batman & Robin villains are drawn smoothed.
 

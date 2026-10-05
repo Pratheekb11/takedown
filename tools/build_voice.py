@@ -42,6 +42,7 @@ FIXED = {
     'wins': ('wins!', 1.1),
     'time_over': ('Time over!', 1.2),
     'draw': ('Draw!', 1.1),
+    'perfect': ('Perfect!', 1.15),
 }
 
 # Spellings (and optional speed) that read better aloud than the on-screen names; each was

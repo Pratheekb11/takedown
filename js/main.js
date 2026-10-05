@@ -26,7 +26,7 @@
   })();
   const save = () => {
     try {
-      localStorage.setItem(STORE_KEY, JSON.stringify({ pick: setup.pick, difficulty: setup.difficulty, muted: Sound.muted, cleared }));
+      localStorage.setItem(STORE_KEY, JSON.stringify({ pick: setup.pick, difficulty: setup.difficulty, muted: Sound.muted, cleared, best }));
     } catch (e) {
       // not saved; nothing else depends on it
     }
@@ -35,6 +35,8 @@
   // fighter id -> hardest difficulty that fighter has cleared arcade on
   const LEVELS = ['easy', 'normal', 'hard'];
   const cleared = saved.cleared && typeof saved.cleared === 'object' ? saved.cleared : {};
+  // fighter id -> best arcade score
+  const best = saved.best && typeof saved.best === 'object' ? saved.best : {};
 
   const keyboard = new KeyboardController(KEYMAP_P1);
   const touch = new TouchController($('touch'));
@@ -68,7 +70,28 @@
 
   // Arcade run: a ladder of opponents fought in order. Losing offers a continue.
   const ARCADE_FIGHTS = 8;
-  const arcade = { on: false, ladder: [], i: 0, continues: 0 };
+  const arcade = { on: false, ladder: [], i: 0, continues: 0, score: 0 };
+
+  // Arcade scoring for a won fight, SF2-style: damage dealt, best combo, and for every
+  // round you took, health and seconds left over (a full-health round is a PERFECT).
+  // Harder levels multiply it. A continue costs CONTINUE_COST of the running score.
+  const SCORE_MULT = { easy: 1, normal: 1.5, hard: 2 };
+  const CONTINUE_COST = 0.2;
+  const fmt = (n) => Math.round(n).toLocaleString('en-US');
+
+  function fightScore(me, rounds, level) {
+    const mine = rounds.filter((r) => r.side === me.side);
+    const parts = {
+      damage: me.stats.dmg * 10,
+      combo: me.stats.maxCombo > 1 ? me.stats.maxCombo * 200 : 0,
+      health: mine.reduce((a, r) => a + Math.round(r.hp) * 50, 0),
+      time: mine.reduce((a, r) => a + r.sec * 50, 0),
+      perfect: mine.filter((r) => r.hp >= 100 && r.sec > 0).length * 5000,
+    };
+    const mult = SCORE_MULT[level] || 1;
+    const total = Math.round(Object.values(parts).reduce((a, b) => a + b, 0) * mult);
+    return { parts, mult, total };
+  }
 
   let inMatch = false;
 
@@ -325,7 +348,7 @@
       const j = Math.floor(Math.random() * (i + 1));
       [others[i], others[j]] = [others[j], others[i]];
     }
-    Object.assign(arcade, { on: true, ladder: others.slice(0, ARCADE_FIGHTS), i: 0, continues: 0, level: setup.difficulty });
+    Object.assign(arcade, { on: true, ladder: others.slice(0, ARCADE_FIGHTS), i: 0, continues: 0, score: 0, level: setup.difficulty });
     showLadder();
   }
 
@@ -342,6 +365,8 @@
     $('lad-kicker').textContent = last ? 'FINAL FIGHT' : `FIGHT ${arcade.i + 1} OF ${n}`;
     $('lad-kicker').className = 'result-kicker ' + (last ? 'lose' : 'win');
     $('lad-next').textContent = CHARS[arcade.ladder[arcade.i]].name;
+    const top = best[setup.pick[0]];
+    $('lad-score').textContent = `Score ${fmt(arcade.score)}` + (top ? `  ·  Best ${fmt(top)}` : '');
     const row = $('lad-row');
     row.innerHTML = '';
     arcade.ladder.forEach((id, k) => {
@@ -405,6 +430,7 @@
       showLadder();
     } else if (arcade.result === 'lost') {
       arcade.continues++;
+      arcade.score = Math.round(arcade.score * (1 - CONTINUE_COST));
       arcadeFight();
     } else {
       startArcade();
@@ -429,7 +455,7 @@
     if (isTouch && inMatch && !game.paused && window.innerHeight > window.innerWidth) pause(true);
   });
 
-  function showResult({ winner, p1, p2, won }) {
+  function showResult({ winner, p1, p2, won, rounds }) {
     const youWin = winner === p1;
     $('res-kicker').textContent = youWin ? 'VICTORY' : 'DEFEAT';
     $('res-kicker').className = 'result-kicker ' + (youWin ? 'win' : 'lose');
@@ -449,16 +475,34 @@
       arcade.result = champ ? 'champion' : youWin ? 'won' : 'lost';
       $('btn-rematch').textContent = champ ? 'Play again' : youWin ? 'Next fight' : 'Continue';
       $('btn-menu').textContent = 'Quit arcade';
+      if (youWin) {
+        const s = fightScore(p1, rounds || [], arcade.level);
+        arcade.score += s.total;
+        rows = [
+          ['', 'Score'],
+          ['Damage', fmt(s.parts.damage)],
+          ['Combo bonus', fmt(s.parts.combo)],
+          ['Health bonus', fmt(s.parts.health)],
+          ['Time bonus', fmt(s.parts.time)],
+        ];
+        if (s.parts.perfect) rows.push(['Perfect bonus', fmt(s.parts.perfect)]);
+        if (s.mult !== 1) rows.push([`${arcade.level[0].toUpperCase() + arcade.level.slice(1)} \u00d7${s.mult}`, `+${fmt(s.total - s.total / s.mult)}`]);
+        rows.push(['This fight', fmt(s.total)], ['Total score', fmt(arcade.score)]);
+      } else {
+        rows.push(['Arcade score', fmt(arcade.score), `\u221220% to continue`]);
+      }
       if (champ) {
         $('res-kicker').textContent = 'CHAMPION';
-        $('res-name').textContent = `${p1.name} beat them all`;
         const id = setup.pick[0];
-        if (LEVELS.indexOf(arcade.level) > LEVELS.indexOf(cleared[id] || '')) {
-          cleared[id] = arcade.level;
-          save();
-        }
+        const record = arcade.score > (best[id] || 0);
+        $('res-name').textContent = record ? `New best: ${fmt(arcade.score)}` : `${p1.name} beat them all`;
+        if (record) best[id] = arcade.score;
+        if (LEVELS.indexOf(arcade.level) > LEVELS.indexOf(cleared[id] || '')) cleared[id] = arcade.level;
+        save();
         rows = [
           ['', 'Arcade'],
+          ['Final score', fmt(arcade.score)],
+          ['Best with ' + p1.name, fmt(best[id])],
           ['Fighters beaten', arcade.ladder.length],
           ['Continues used', arcade.continues],
           ['Difficulty', arcade.level],
@@ -466,8 +510,10 @@
       }
     }
     const esc = (v) => String(v).replace(/[&<>"]/g, (ch) => `&#${ch.charCodeAt(0)};`);
+    const totals = new Set(['This fight', 'Total score', 'Final score']);
+    $('res-stats').className = rows[0].length === 2 ? 'stats two' : 'stats';
     $('res-stats').innerHTML = rows
-      .map((r, i) => `<tr>${r.map((c) => (i === 0 ? `<th>${esc(c)}</th>` : `<td>${esc(c)}</td>`)).join('')}</tr>`)
+      .map((r, i) => `<tr${totals.has(r[0]) ? ' class="total"' : ''}>${r.map((c) => (i === 0 ? `<th>${esc(c)}</th>` : `<td>${esc(c)}</td>`)).join('')}</tr>`)
       .join('');
     game.inputs[0].reset();
     $('topbar').classList.add('hidden');
@@ -493,5 +539,9 @@
     refreshSetup();
     go('title');
     Sound.preload(); // announcer clips, after the fighters so they never compete
+    // Offline play and instant repeat visits: sw.js caches the whole game.
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
   });
 })();
