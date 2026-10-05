@@ -15,7 +15,15 @@
 
   const keyboard = new KeyboardController(KEYMAP_P1);
   const touch = new TouchController($('touch'));
-  const game = new Game($('game'), { onEnd: showResult });
+  // Portrait title: the free space between the tagline and the buttons, where the
+  // backdrop fighters should stand.
+  const backdropGap = () => {
+    if (screens.title.classList.contains('hidden')) return null;
+    const top = document.querySelector('#scr-title .tag').getBoundingClientRect().bottom;
+    const bottom = document.querySelector('#scr-title .menu').getBoundingClientRect().top;
+    return bottom - top > 120 ? { top: top + 6, bottom: bottom - 4 } : null;
+  };
+  const game = new Game($('game'), { onEnd: showResult, backdropGap });
 
   const setup = {
     ids: [],
@@ -55,6 +63,7 @@
     }
     if (name === 'setup') refreshSetup();
     show(name);
+    game.resize(); // the backdrop is framed around the title layout
   }
 
   // Phones: go fullscreen on the first menu tap so browser bars don't eat the

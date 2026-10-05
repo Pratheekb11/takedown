@@ -175,14 +175,21 @@ class Game {
     // Screens wider than 16:9 (phones): fill the width and trim sky instead of
     // leaving black side bars. Never trim more than MAX_CROP of the world.
     if (ww / VIEW_W > s) s = Math.min(ww / VIEW_W, wh / (VIEW_H * (1 - MAX_CROP)));
-    // Portrait menus: blow the backdrop up so the two fighters fill the middle of
-    // the screen between the logo and the buttons (the sides crop off).
-    if (this.phase === 'menu' && wh > ww) s = Math.max(s, (wh * 0.6) / VIEW_H);
+    // Portrait menus: blow the backdrop up so the two fighters fill the gap the
+    // menu leaves between the logo and the buttons (the sides crop off).
+    const gap = this.phase === 'menu' && wh > ww && this.hooks.backdropGap ? this.hooks.backdropGap() : null;
+    if (gap) {
+      const tall = Math.max(this.p1 ? this.p1.ch.height : 0, this.p2 ? this.p2.ch.height : 0) || 300;
+      s = Math.max(s, (gap.bottom - gap.top) / (tall + 30));
+    }
     const cw = Math.floor(VIEW_W * s);
     const ch = Math.min(wh, Math.floor(VIEW_H * s));
     const cut = VIEW_H - ch / s;
     this.camY = cut - Math.min(cut, FLOOR_KEEP); // trim the floor a little, the sky the rest
     this.cssScale = s;
+    // ...and slide it so the floor sits just above the buttons
+    const lift = gap ? Math.round(gap.bottom - ((wh - ch) / 2 + (GROUND - this.camY) * s)) : 0;
+    stage.style.transform = lift ? `translateY(${lift}px)` : '';
     stage.style.width = cw + 'px';
     stage.style.height = ch + 'px';
     document.documentElement.style.setProperty('--s', s.toFixed(4));

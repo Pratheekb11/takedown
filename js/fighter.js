@@ -302,12 +302,19 @@ class Fighter {
   reachInto(opp, r) {
     if (!opp.vulnerable) return null;
     const tip = this.hitPoint();
+    const y = opp.strikeY(tip.y);
     const base = this.x + this.face * this.ch.halfW;
     for (const k of [1, 0.66, 0.33]) {
       const x = base + (tip.x - base) * k;
-      if (opp.overlaps(x, tip.y, r)) return { x, y: tip.y };
+      if (opp.overlaps(x, y, r)) return { x, y };
     }
     return null;
+  }
+
+  // There is no crouching, so a blow aimed over a shorter fighter's head comes
+  // down to it instead of passing through the air above them.
+  strikeY(y) {
+    return this.airborne ? y : Math.max(y, this.hurtbox().t + 16);
   }
 
   hitPoint(fi = this.frame) {
@@ -570,8 +577,9 @@ class Projectile {
     this.x += this.face * this.h.speed;
     if (this.t % 2 === 0) game.fx.energy(this.x - this.face * 30, this.y, this.m.aura);
     const opp = this.owner === game.p1 ? game.p2 : game.p1;
-    if (opp.vulnerable && opp.overlaps(this.x, this.y, this.h.r)) {
-      game.resolveHit(this.owner, opp, this.h, this.m, { x: this.x, y: this.y }, this.face);
+    const y = opp.strikeY(this.y);
+    if (opp.vulnerable && opp.overlaps(this.x, y, this.h.r)) {
+      game.resolveHit(this.owner, opp, this.h, this.m, { x: this.x, y }, this.face);
       this.dead = true;
     }
     if (this.x < -100 || this.x > VIEW_W + 100) this.dead = true;

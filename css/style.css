@@ -1164,7 +1164,7 @@ kbd {
 }
 
 /* Portrait: logo up top, buttons at the bottom, the fighters in the gap. */
-@media (orientation: portrait) and (max-width: 700px) {
+@media (orientation: portrait) {
   #scr-title {
     background: linear-gradient(rgba(8, 7, 13, 0.92), rgba(8, 7, 13, 0.2) 30%, rgba(8, 7, 13, 0.15) 55%, rgba(8, 7, 13, 0.9) 72%);
   }
@@ -1180,9 +1180,6 @@ kbd {
   }
   #scr-title .menu {
     margin-top: auto;
-  }
-  body:not(.in-match) #stage {
-    transform: translateY(-11vh);
   }
 }
 
@@ -1308,6 +1305,7 @@ kbd {
   }
   #scr-result .menu .btn {
     flex: 1;
+    white-space: nowrap;
   }
   .howto {
     line-height: 1.35;
@@ -1411,6 +1409,11 @@ kbd {
 }
 
 @media (max-width: 560px) {
+  /* narrow portrait phones: one readable column instead of two cramped ones */
+  .howto {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
   .row {
     flex-wrap: wrap;
   }
