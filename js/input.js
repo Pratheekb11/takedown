@@ -78,7 +78,9 @@ class KeyboardController {
     });
     window.addEventListener('keyup', (e) => {
       const a = this.map[e.code];
-      if (a && this.input) this.input.release(a);
+      if (!a || !this.input) return;
+      e.preventDefault(); // Space keyup would otherwise press a focused button
+      this.input.release(a);
     });
     window.addEventListener('blur', () => this.input && this.input.reset());
   }

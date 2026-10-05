@@ -84,16 +84,36 @@ const Sound = (() => {
   let voiceSrc = null;
   let voiceEnd = 0; // ctx time the current/queued line finishes
 
-  function loadClips() {
+  // Clips are downloaded as soon as the menu is up (preload) but can only be decoded
+  // once the first tap has unlocked audio, so the bytes wait in `raw` until then.
+  // On a slow connection this means the announcer is ready by the first fight
+  // instead of falling back to the browser's robot voice.
+  const raw = {};
+
+  function decodeClip(k) {
+    const b = raw[k];
+    if (!ctx || !b) return;
+    raw[k] = null;
+    ctx.decodeAudioData(b, (buf) => (clips[k] = buf), () => {});
+  }
+
+  function preload() {
     if (clipsLoading || typeof VOICE_CLIPS === 'undefined') return;
     clipsLoading = true;
     for (const k of VOICE_CLIPS) {
       fetch(`assets/voice/${k}.mp3`)
         .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(r.status)))
-        .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b, res, rej)))
-        .then((buf) => (clips[k] = buf))
+        .then((b) => {
+          raw[k] = b;
+          decodeClip(k);
+        })
         .catch(() => {});
     }
+  }
+
+  function loadClips() {
+    preload();
+    for (const k in raw) decodeClip(k);
   }
 
   // Plays clips back to back (e.g. "ryu" "versus" "sagat"). Returns false if any is missing.
@@ -153,6 +173,7 @@ const Sound = (() => {
 
   return {
     init,
+    preload,
     say,
     hush,
     toggle() {

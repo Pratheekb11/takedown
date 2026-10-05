@@ -1186,6 +1186,29 @@ kbd {
   z-index: 1;
 }
 
+.ladder .result-kicker {
+  font-size: clamp(32px, 11vw, 54px);
+  white-space: nowrap;
+}
+
+@media (max-height: 500px) {
+  .ladder-row {
+    margin: 10px 0 4px;
+  }
+  .lad-label {
+    margin-top: 6px !important;
+  }
+  #scr-ladder .menu {
+    flex-direction: row;
+    width: auto;
+    margin-top: 10px;
+  }
+  #scr-ladder .menu .btn {
+    flex: 1;
+    white-space: nowrap;
+  }
+}
+
 .lad-label {
   margin: 14px 0 0;
   font-family: var(--display);

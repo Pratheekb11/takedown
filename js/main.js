@@ -80,6 +80,8 @@
 
   function setMatchUi(on) {
     inMatch = on;
+    // a menu button left focused would be pressed again by Space / Enter mid-fight
+    if (on && document.activeElement && document.activeElement.blur) document.activeElement.blur();
     document.body.classList.toggle('in-match', on);
     $('topbar').classList.toggle('hidden', !on);
     $('touch').classList.toggle('hidden', !on || !isTouch);
@@ -387,7 +389,10 @@
     show(on ? 'pause' : null);
   }
 
-  $('btn-pause').addEventListener('click', () => pause(true));
+  $('btn-pause').addEventListener('click', (e) => {
+    e.currentTarget.blur();
+    pause(true);
+  });
   $('btn-resume').addEventListener('click', () => pause(false));
   $('btn-restart').addEventListener('click', () => startMatch(setup.lastCfg));
   $('btn-quit').addEventListener('click', () => go('title'));
@@ -407,6 +412,7 @@
   });
   $('btn-menu').addEventListener('click', () => go('title'));
   $('btn-mute').addEventListener('click', (e) => {
+    e.currentTarget.blur(); // keep Space (jump) from toggling it again
     e.currentTarget.classList.toggle('off', Sound.toggle());
     save();
   });
@@ -417,6 +423,10 @@
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && inMatch && !game.paused) pause(true);
+  });
+  // Phones turned upright mid-fight get the rotate cover; don't keep fighting under it.
+  window.addEventListener('resize', () => {
+    if (isTouch && inMatch && !game.paused && window.innerHeight > window.innerWidth) pause(true);
   });
 
   function showResult({ winner, p1, p2, won }) {
@@ -482,5 +492,6 @@
     buildRoster();
     refreshSetup();
     go('title');
+    Sound.preload(); // announcer clips, after the fighters so they never compete
   });
 })();
