@@ -58,8 +58,10 @@ class Effects {
     this.add({ k: 4, x: x + rand(-50, 50), y: y + rand(-120, 20), vx: rand(-0.5, 0.5), vy: rand(-4, -2), life, max: life, r: rand(2, 5), c: color });
   }
 
+  // Pops in, holds, then fades fast so it never lingers over the fighters.
   text(x, y, str, color, size = 34) {
-    this.add({ k: 5, x, y, vx: 0, vy: -1.2, life: 45, max: 45, str, c: color, size });
+    x = clamp(x, size * 3, VIEW_W - size * 3);
+    this.add({ k: 5, x, y, vx: 0, vy: -0.8, life: 34, max: 34, str, c: color, size });
   }
 
   ring(x, y, r0, r1, life, color, w) {
@@ -123,8 +125,10 @@ class Effects {
         ctx.fillStyle = p.c;
         star(ctx, p.x, p.y, s * 0.6, s * 0.2, 8, p.a + 0.2);
       } else if (p.k === 5) {
-        ctx.globalAlpha = Math.min(1, t * 2);
-        ctx.font = `${p.size}px Bangers, Impact, sans-serif`;
+        const age = p.max - p.life;
+        ctx.globalAlpha = Math.min(1, p.life / 10);
+        const pop = age < 6 ? 1.5 - (age / 6) * 0.5 : 1;
+        ctx.font = `${Math.round(p.size * pop)}px Bangers, Impact, sans-serif`;
         ctx.textAlign = 'center';
         ctx.lineJoin = 'round';
         ctx.lineWidth = 6;

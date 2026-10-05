@@ -106,6 +106,7 @@ const spoken = (s) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 const clipKey = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 const MAX_CROP = 0.25; // share of the world height a wide screen may trim
 const FLOOR_KEEP = 40; // world units of floor trimmed first; the rest comes off the sky
+const CAM_ZOOM = 0.1; // extra zoom when the fighters are up close
 
 class Game {
   constructor(canvas, hooks) {
@@ -140,6 +141,31 @@ class Game {
     this.shakeM = 0;
     this.flashA = 0;
     this.dark = 0;
+    this.zoom = 1;
+    this.camX = VIEW_W / 2;
+  }
+
+  // Ease in a little when the fighters close in, centred between them. The view
+  // never leaves the stage, so no edge or black bar ever shows.
+  updateCamera() {
+    const { p1, p2 } = this;
+    let tz = 1, tx = VIEW_W / 2;
+    if (p1 && this.phase !== 'menu') {
+      tz = 1 + CAM_ZOOM * clamp((620 - Math.abs(p1.x - p2.x)) / 360, 0, 1);
+      tx = (p1.x + p2.x) / 2;
+    }
+    this.zoom += (tz - this.zoom) * 0.04;
+    const half = VIEW_W / (2 * this.zoom);
+    this.camX = clamp(this.camX + (tx - this.camX) * 0.08, half, VIEW_W - half);
+    // Scaled on the compositor (CSS), not by redrawing the stage bigger: the zoom
+    // costs nothing per frame. Anchored on the bottom edge so the floor stays put.
+    const z = Math.round(this.zoom * 1000) / 1000;
+    const x = Math.round((VIEW_W / 2 - this.camX) * z * this.cssScale - (VIEW_W / 2) * (z - 1) * this.cssScale);
+    if (z !== this.camZ || x !== this.camPx) {
+      this.camZ = z;
+      this.camPx = x;
+      this.canvas.style.transform = z === 1 ? '' : `translateX(${x}px) scale(${z})`;
+    }
   }
 
   resize() {
@@ -149,10 +175,14 @@ class Game {
     // Screens wider than 16:9 (phones): fill the width and trim sky instead of
     // leaving black side bars. Never trim more than MAX_CROP of the world.
     if (ww / VIEW_W > s) s = Math.min(ww / VIEW_W, wh / (VIEW_H * (1 - MAX_CROP)));
+    // Portrait menus: blow the backdrop up so the two fighters fill the middle of
+    // the screen between the logo and the buttons (the sides crop off).
+    if (this.phase === 'menu' && wh > ww) s = Math.max(s, (wh * 0.6) / VIEW_H);
     const cw = Math.floor(VIEW_W * s);
     const ch = Math.min(wh, Math.floor(VIEW_H * s));
     const cut = VIEW_H - ch / s;
     this.camY = cut - Math.min(cut, FLOOR_KEEP); // trim the floor a little, the sky the rest
+    this.cssScale = s;
     stage.style.width = cw + 'px';
     stage.style.height = ch + 'px';
     document.documentElement.style.setProperty('--s', s.toFixed(4));
@@ -176,6 +206,7 @@ class Game {
     this.p2.setState('intro', 1);
     this.ai = null;
     this.phase = 'menu';
+    this.resize();
     this.paused = false;
     this.fx.clear();
     this.resetFx();
@@ -196,6 +227,7 @@ class Game {
     this.hud.setup(this.p1, this.p2);
     this.hud.show(true);
     this.nextRound();
+    this.resize();
     this.ensureLoop();
   }
 
@@ -265,6 +297,7 @@ class Game {
 
   tick() {
     this.frame++;
+    this.updateCamera();
     this.fx.update();
     this.crowd.update();
     if (this.shakeT > 0) this.shakeT--;
@@ -433,7 +466,7 @@ class Game {
     const power = h.big ? 1.4 : clamp(h.dmg / 12, 0.2, 1);
     this.fx.spark(p.x, p.y, dir, power, m.aura || (counter ? '#ff7a3d' : '#ffe27a'));
     if (h.type === 'head' && power >= 0.8) this.fx.sweat(p.x, p.y, dir);
-    if (counter) this.fx.text(p.x, p.y - 50, 'COUNTER!', '#ff7a3d');
+    if (counter) this.fx.text(p.x, def.y - def.ch.height - 14, 'COUNTER!', '#ff7a3d');
     if (h.big) {
       this.flashA = 0.3;
       this.fx.ring(p.x, p.y, 20, 240, 24, '#ffffff', 10);

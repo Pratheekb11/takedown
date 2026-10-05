@@ -60,6 +60,7 @@ button {
   display: block;
   width: 100%;
   height: 100%;
+  transform-origin: 0 100%;
 }
 
 /* ---------- HUD (scaled with the canvas via --s) ---------- */
@@ -822,6 +823,14 @@ button {
   overscroll-behavior: contain;
 }
 
+/* fade the bottom edge so a half-hidden row reads as "scroll for more";
+   the padding lets the last row scroll clear of the fade */
+.panel > .roster {
+  padding-bottom: 22px;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 22px), transparent);
+}
+
 .panel > .row {
   flex-shrink: 0;
 }
@@ -1154,6 +1163,29 @@ kbd {
   }
 }
 
+/* Portrait: logo up top, buttons at the bottom, the fighters in the gap. */
+@media (orientation: portrait) and (max-width: 700px) {
+  #scr-title {
+    background: linear-gradient(rgba(8, 7, 13, 0.92), rgba(8, 7, 13, 0.2) 30%, rgba(8, 7, 13, 0.15) 55%, rgba(8, 7, 13, 0.9) 72%);
+  }
+  #scr-title .title-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100%;
+    margin: 0;
+  }
+  #scr-title .tag {
+    margin-bottom: 0;
+  }
+  #scr-title .menu {
+    margin-top: auto;
+  }
+  body:not(.in-match) #stage {
+    transform: translateY(-11vh);
+  }
+}
+
 /* Portrait phones on the menu: a quiet nudge before the fight starts. */
 .turn-tip {
   display: none;
@@ -1321,8 +1353,8 @@ kbd {
     gap: 8px;
   }
   .slot canvas.big {
-    width: 56px;
-    height: 52px;
+    width: 86px;
+    height: 80px;
   }
   .slot input {
     font-size: 15px;

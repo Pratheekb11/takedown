@@ -529,12 +529,15 @@ class Fighter {
     }
 
     if (this.ghosts.length) {
+      // additive and faint, older copies fainter: an energy smear, not a solid copy
+      ctx.globalCompositeOperation = 'lighter';
       for (let i = 0; i < this.ghosts.length; i++) {
         const g = this.ghosts[i];
-        ctx.globalAlpha = 0.2 + i * 0.1;
+        ctx.globalAlpha = 0.1 + i * 0.06;
         drawFrame(ctx, this.ch, g.frame, g.x, g.y, g.face, g.color);
       }
       ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
     }
 
     drawFrame(ctx, this.ch, this.frame, this.x, this.y, this.face, null, this.rot);
