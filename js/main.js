@@ -117,7 +117,10 @@
     game.inputs[0].reset();
   }
 
+  let updateReady = false; // a new build is cached and waiting for a quiet moment
+
   function go(name) {
+    if (name === 'title' && updateReady) return location.reload();
     if (name === 'title') {
       arcade.on = false;
       Sound.hush();
@@ -450,6 +453,38 @@
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && inMatch && !game.paused) pause(true);
   });
+  // iOS Safari zoom guards for the fight (the controls cancel their own touches):
+  // a second tap within 350 ms anywhere, Safari's pinch gesture, and dblclick.
+  let lastTouchEnd = 0;
+  document.addEventListener(
+    'touchend',
+    (e) => {
+      const now = Date.now();
+      const quick = now - lastTouchEnd < 350;
+      lastTouchEnd = now;
+      if (!inMatch || !quick || !e.cancelable || e.defaultPrevented) return;
+      e.preventDefault(); // no double-tap zoom...
+      const btn = e.target.closest && e.target.closest('button');
+      if (btn && !btn.disabled) btn.click(); // ...but the tap still presses the button
+    },
+    { passive: false }
+  );
+  for (const ev of ['gesturestart', 'gesturechange', 'dblclick']) {
+    document.addEventListener(ev, (e) => inMatch && e.cancelable && e.preventDefault(), { passive: false });
+  }
+  // If the page still ends up zoomed in mid-fight, snap it back (rewriting the
+  // viewport tag makes Safari re-apply scale 1) and pause so nobody loses meanwhile.
+  const viewportMeta = document.querySelector('meta[name="viewport"]');
+  const viewportContent = viewportMeta.content;
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', () => {
+      if (!inMatch || window.visualViewport.scale <= 1.01) return;
+      if (!game.paused) pause(true);
+      viewportMeta.content = viewportContent + ', minimum-scale=1';
+      setTimeout(() => (viewportMeta.content = viewportContent), 300);
+    });
+  }
+
   // Phones turned upright mid-fight get the rotate cover; don't keep fighting under it.
   window.addEventListener('resize', () => {
     if (isTouch && inMatch && !game.paused && window.innerHeight > window.innerWidth) pause(true);
@@ -541,6 +576,14 @@
     Sound.preload(); // announcer clips, after the fighters so they never compete
     // Offline play and instant repeat visits: sw.js caches the whole game.
     if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      // A new build took over (fixes shouldn't wait a visit): reload straight away on
+      // a quiet menu, otherwise the next time the player is back on the title.
+      const hadWorker = !!navigator.serviceWorker.controller;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!hadWorker) return; // first install, nothing new to show
+        if (!inMatch && ['title', 'howto', 'credits'].some((k) => !screens[k].classList.contains('hidden'))) location.reload();
+        else updateReady = true;
+      });
       navigator.serviceWorker.register('sw.js').catch(() => {});
     }
   });

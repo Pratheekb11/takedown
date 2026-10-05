@@ -483,6 +483,15 @@ button {
 }
 
 /* ---------- Touch controls ---------- */
+/* iOS Safari: no callout menu, text selection or zoom gestures from the controls */
+#touch,
+#touch * {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 #touch {
   position: fixed;
   inset: 0;

@@ -102,6 +102,13 @@ class TouchController {
     this.lastPunch = 0;
     this.initStick(root.querySelector('#stick-zone'), root.querySelector('#stick'));
     root.querySelectorAll('[data-act]').forEach((btn) => this.initButton(btn));
+    // iOS Safari ignores user-scalable=no: a quick double tap on a button zooms the
+    // page and the game is unplayable until zoomed back out. Cancelling the touch
+    // events stops the zoom (and the long-press menu); the controls run on pointer
+    // events, which still fire.
+    for (const ev of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+      root.addEventListener(ev, (e) => e.cancelable && e.preventDefault(), { passive: false });
+    }
   }
 
   initStick(zone, stick) {
