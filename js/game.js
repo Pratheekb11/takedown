@@ -189,6 +189,7 @@ class Game {
     this.p1 = new Fighter({ name: cfg.p1.name, ch: cfg.p1.ch, input: i1, side: 0 });
     this.p2 = new Fighter({ name: cfg.p2.name, ch: cfg.p2.ch, input: i2, side: 1 });
     this.ai = cfg.mode === 'cpu' ? new AIController(cfg.difficulty, i2) : null;
+    if (this.ai) this.p2.dmgMul = this.ai.cfg.dmg;
     this.round = 0;
     this.won = [0, 0];
     this.paused = false;
@@ -364,7 +365,7 @@ class Game {
     if (lying(a) || lying(b) || Math.abs(a.y - b.y) > 130) return;
     const dx = b.x - a.x;
     const ad = Math.abs(dx);
-    const PUSH_DIST = a.ch.halfW + b.ch.halfW;
+    const PUSH_DIST = a.ch.pushW + b.ch.pushW;
     if (ad >= PUSH_DIST) return;
     const s = dx === 0 ? a.face : Math.sign(dx);
     const push = (PUSH_DIST - ad) / 2;
@@ -410,7 +411,7 @@ class Game {
     const reeling = def.state === 'hit' || def.state === 'down';
     att.combo = reeling ? att.combo + 1 : 1;
     const scale = Math.max(0.45, 1 - (att.combo - 1) * 0.1) * (counter ? 1.25 : 1);
-    const dmg = Math.max(1, Math.round(h.dmg * scale));
+    const dmg = Math.max(1, Math.round(h.dmg * scale * att.dmgMul));
     def.hp = Math.max(0, def.hp - dmg);
     att.stats.hits++;
     att.stats.dmg += dmg;

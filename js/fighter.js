@@ -19,6 +19,7 @@ class Fighter {
     this.ch = ch;
     this.side = side;
     this.input = input;
+    this.dmgMul = 1; // the CPU's damage edge on hard
     this.supers = { super1: buildSuper('super1', ch.super1), super2: buildSuper('super2', ch.super2) };
     this.reset(side === 0 ? 440 : VIEW_W - 440, side === 0 ? 1 : -1);
   }
@@ -91,7 +92,7 @@ class Fighter {
   range(action) {
     const m = this.moveFor(action);
     const name = m.super ? m.anim : m.key;
-    const reach = Math.max(this.ch.reach[name] || this.ch.reach.cross || 0, this.ch.halfW + 34);
+    const reach = Math.max(this.ch.reach[name] || this.ch.reach.cross || 0, this.ch.pushW + 34);
     return reach + (m.hits[0] ? m.hits[0].r : 30);
   }
 
@@ -144,6 +145,26 @@ class Fighter {
     }
     this.physics(game);
     this.pickFrame();
+    this.keepOnScreen();
+  }
+
+  // A body lying on the floor is far wider than the walls allow for, so slide it
+  // in until the whole sprite is visible.
+  keepOnScreen() {
+    if (this.state !== 'down' && this.state !== 'ko' && this.state !== 'getup') return;
+    const f = this.ch.frames[this.frame];
+    const w = this.ch.toWorld;
+    let back, front;
+    if (this.rot) {
+      back = front = Math.max(w(f.w), w(f.h)) / 2;
+    } else {
+      back = w(f.ax);
+      front = w(f.w - f.ax);
+    }
+    const left = this.face > 0 ? back : front;
+    const right = this.face > 0 ? front : back;
+    const pad = 6;
+    this.x = clamp(this.x, Math.max(STAGE_L, left + pad), Math.min(STAGE_R, VIEW_W - right - pad));
   }
 
   neutral(game) {
@@ -293,7 +314,7 @@ class Fighter {
     const f = this.ch.frames[fi];
     const w = this.ch.toWorld;
     // Bulky art barely extends past the body; always reach past the push-apart distance.
-    const reach = Math.max(w(f.reach), this.ch.halfW + 34);
+    const reach = Math.max(w(f.reach), this.ch.pushW + 34);
     // Props (grapple lines, raised weapons) can poke far above the head; strike at body height.
     const y = clamp(this.y + w(f.reachY), this.y - this.ch.height, this.y - 30);
     return { x: this.x + this.face * reach, y };

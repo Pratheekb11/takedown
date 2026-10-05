@@ -32,6 +32,7 @@ function makeCharacter(id, d, img) {
   c.toWorld = w;
   c.height = w(idle.h);
   c.halfW = w(idle.w) * 0.36;
+  c.pushW = w(idle.w) * 0.44; // bodies keep this far apart, so they never sink into each other
   // For each animation: the frame with the longest forward reach is its "hit" pose.
   c.peak = {};
   c.reach = {};
