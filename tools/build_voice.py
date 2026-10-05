@@ -7,7 +7,9 @@ names) with the Piper neural TTS, gives it an arcade-announcer treatment with ff
 (deeper, compressed, a short arena echo) and writes assets/voice/<key>.mp3 plus
 js/voice-data.js listing the clips.
 
-  uv run --no-project --with piper-tts python tools/build_voice.py <voice.onnx>
+  uv run --no-project --with piper-tts python tools/build_voice.py <voice.onnx> [--missing]
+
+--missing renders only lines that have no clip yet, leaving existing clips untouched.
 
 Voice model: https://huggingface.co/rhasspy/piper-voices (en_US/hfc_male/medium used:
 clearest of five voices when transcribed back with Whisper).
@@ -38,6 +40,8 @@ FIXED = {
     'knockout': ('Knockout!', 1.25),
     'versus': ('versus', 1.1),
     'wins': ('wins!', 1.1),
+    'time_over': ('Time over!', 1.2),
+    'draw': ('Draw!', 1.1),
 }
 
 # Spellings (and optional speed) that read better aloud than the on-screen names; each was
@@ -90,8 +94,11 @@ def main():
     voice = PiperVoice.load(sys.argv[1])
     os.makedirs(OUT_DIR, exist_ok=True)
     todo = lines()
+    only_missing = '--missing' in sys.argv
     with tempfile.TemporaryDirectory() as tmp:
         for key, (text, speed) in todo.items():
+            if only_missing and os.path.exists(os.path.join(OUT_DIR, key + '.mp3')):
+                continue
             raw = os.path.join(tmp, key + '.wav')
             with wave.open(raw, 'wb') as w:
                 voice.synthesize_wav(text, w, syn_config=SynthesisConfig(length_scale=speed))

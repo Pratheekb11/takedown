@@ -256,6 +256,17 @@ button {
   text-shadow: 0 calc(var(--s) * 3px) 0 #000;
 }
 
+#hud .vs.low {
+  color: var(--red);
+  animation: clockpulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes clockpulse {
+  to {
+    transform: translateX(-50%) scale(1.12);
+  }
+}
+
 #hud .combo {
   position: absolute;
   top: calc(var(--s) * 150px);
@@ -982,6 +993,11 @@ button {
   color: var(--cyan);
 }
 
+.card.random {
+  border-style: dashed;
+  color: var(--gold);
+}
+
 .card.p1.p2 {
   border-image: linear-gradient(90deg, var(--gold) 50%, var(--cyan) 50%) 1;
 }
@@ -1433,6 +1449,7 @@ kbd {
 
 @media (prefers-reduced-motion: reduce) {
   #hud .fill.low,
+  #hud .vs.low,
   #hud .pw[data-lv='2'],
   #hud .pips i.won,
   .tb.sup .ring,

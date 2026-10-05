@@ -13,6 +13,24 @@
   const isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
   document.body.classList.toggle('is-touch', isTouch);
 
+  // Remembered between visits: picks, difficulty, mute. Storage can be missing or
+  // blocked (private mode); the game just starts fresh then.
+  const STORE_KEY = 'takedown.settings';
+  const saved = (() => {
+    try {
+      return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+    } catch (e) {
+      return {};
+    }
+  })();
+  const save = () => {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({ pick: setup.pick, difficulty: setup.difficulty, muted: Sound.muted }));
+    } catch (e) {
+      // not saved; nothing else depends on it
+    }
+  };
+
   const keyboard = new KeyboardController(KEYMAP_P1);
   const touch = new TouchController($('touch'));
   // Portrait title: the free space between the tagline and the buttons, where the
@@ -31,7 +49,7 @@
     names: ['', ''],
     typed: [false, false],
     side: 0,
-    difficulty: 'normal',
+    difficulty: ['easy', 'normal', 'hard'].includes(saved.difficulty) ? saved.difficulty : 'normal',
     lastCfg: null,
   };
 
@@ -91,9 +109,27 @@
   const slots = [$('slot-0'), $('slot-1')];
   const cards = [];
 
+  // A fighter other than `not`, at random.
+  const randomId = (not) => pick(setup.ids.filter((id) => id !== not)) || setup.ids[0];
+
+  function choose(id) {
+    Sound.init();
+    Sound.ui();
+    const side = setup.side;
+    setup.pick[side] = id;
+    if (!setup.typed[side]) setup.names[side] = CHARS[id].name;
+    if (side === 0) setup.side = 1; // then pick the opponent
+    refreshSetup();
+    save();
+  }
+
   function buildRoster() {
     setup.ids = Object.keys(CHARS);
-    setup.pick = [setup.ids[0], setup.ids[1] || setup.ids[0]];
+    // last visit's picks, else you get the first fighter and a random opponent
+    const ok = (id) => id && CHARS[id];
+    const p1 = ok(saved.pick && saved.pick[0]) ? saved.pick[0] : setup.ids[0];
+    const p2 = ok(saved.pick && saved.pick[1]) ? saved.pick[1] : randomId(p1);
+    setup.pick = [p1, p2];
     const root = $('roster');
     for (const id of setup.ids) {
       const c = CHARS[id];
@@ -103,15 +139,7 @@
       b.setAttribute('aria-label', c.name);
       b.innerHTML = `<canvas width="56" height="64"></canvas><span></span>`;
       b.querySelector('span').textContent = c.name;
-      b.addEventListener('click', () => {
-        Sound.init();
-        Sound.ui();
-        const side = setup.side;
-        setup.pick[side] = id;
-        if (!setup.typed[side]) setup.names[side] = c.name;
-        if (side === 0) setup.side = 1; // then pick the opponent
-        refreshSetup();
-      });
+      b.addEventListener('click', () => choose(id));
       root.appendChild(b);
       cards.push({ el: b, canvas: b.querySelector('canvas'), id });
       // static thumbnail: first idle frame, scaled to fit
@@ -121,6 +149,29 @@
       const zoom = Math.min(52 / f.w, 60 / f.h, 2) / c.scale;
       drawPreview(g, c, c.anims.idle[0], 28, 62, zoom, 1);
     }
+    // Random: any fighter except the one already on the other side.
+    const r = document.createElement('button');
+    r.className = 'card random';
+    r.type = 'button';
+    r.setAttribute('aria-label', 'Random fighter');
+    r.innerHTML = `<canvas width="56" height="64"></canvas><span>RANDOM</span>`;
+    r.addEventListener('click', () => choose(randomId(setup.pick[1 - setup.side])));
+    root.appendChild(r);
+    const drawQ = () => {
+      const g = r.querySelector('canvas').getContext('2d');
+      g.clearRect(0, 0, 56, 64);
+      g.font = '48px Bangers, Impact, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.lineWidth = 6;
+      g.strokeStyle = '#000';
+      g.strokeText('?', 28, 34);
+      g.fillStyle = '#f5c542';
+      g.fillText('?', 28, 34);
+    };
+    drawQ();
+    if (document.fonts) document.fonts.ready.then(drawQ);
+
     slots.forEach((el, side) =>
       el.addEventListener('click', (e) => {
         if (e.target.tagName === 'INPUT') return;
@@ -143,6 +194,7 @@
       Sound.ui();
       setup.difficulty = b.dataset.d;
       refreshSetup();
+      save();
     })
   );
 
@@ -236,7 +288,9 @@
   $('btn-menu').addEventListener('click', () => go('title'));
   $('btn-mute').addEventListener('click', (e) => {
     e.currentTarget.classList.toggle('off', Sound.toggle());
+    save();
   });
+  if (saved.muted && !Sound.muted) $('btn-mute').classList.toggle('off', Sound.toggle());
 
   window.addEventListener('keydown', (e) => {
     if (e.code === 'Escape' && inMatch) pause(!game.paused);

@@ -17,6 +17,8 @@ class Hud {
       comboT: 0,
     }));
     this.announcer = $('announcer');
+    this.clockEl = $('clock');
+    this.clockShown = -1;
     this.banner = $('super-banner');
     this.touchSuper = document.querySelector('[data-act="super"]');
   }
@@ -79,6 +81,13 @@ class Hud {
     s.comboT = 80;
   }
 
+  clock(sec) {
+    if (sec === this.clockShown) return;
+    this.clockShown = sec;
+    this.clockEl.textContent = String(sec).padStart(2, '0');
+    this.clockEl.classList.toggle('low', sec <= 10);
+  }
+
   announce(text, cls = '') {
     const a = this.announcer;
     a.textContent = text;
@@ -99,6 +108,7 @@ class Hud {
 }
 
 const ROUNDS_TO_WIN = 2; // best of three
+const ROUND_SECONDS = 99; // when the clock runs out, more health wins the round
 const ROUND_WORDS = ['', 'one', 'two', 'three'];
 
 // Names are shown in capitals; speech engines spell all-caps words out letter by letter.
@@ -239,8 +249,12 @@ class Game {
   }
 
   // Best of three: hp and positions reset, power and stats carry over.
-  nextRound() {
-    this.round++;
+  // replay: a drawn round is fought again under the same number
+  nextRound(replay = false) {
+    if (!replay) this.round++;
+    this.clockT = ROUND_SECONDS * 60;
+    this.timeUp = false;
+    this.hud.clock(ROUND_SECONDS);
     for (const f of [this.p1, this.p2]) {
       const { power, stats } = f;
       f.reset(f.side === 0 ? 440 : VIEW_W - 440, f.side === 0 ? 1 : -1);
@@ -348,6 +362,11 @@ class Game {
     this.shots = this.shots.filter((s) => !s.dead);
     this.separate();
     this.trackCombos();
+    if (this.phase === 'fight') {
+      this.clockT--;
+      this.hud.clock(Math.ceil(this.clockT / 60));
+      if (this.clockT <= 0) this.onTimeUp();
+    }
     if (this.phase === 'ko') this.tickKO();
     this.hud.update(p1, p2);
   }
@@ -386,6 +405,10 @@ class Game {
     const t = this.phaseT;
     if (t === 45) this.timeScale = 1;
     const w = this.winner;
+    if (!w) {
+      if (t === 160) this.nextRound(true);
+      return;
+    }
     if (t > 100 && w.state !== 'win' && (w.state === 'idle' || w.state === 'walk' || w.state === 'block')) {
       w.setState('win', 8);
       this.crowd.excite(1);
@@ -431,6 +454,7 @@ class Game {
   }
 
   resolveHit(att, def, h, m, p, dirOverride) {
+    if (this.phase !== 'fight') return; // the round is already decided
     const dir = dirOverride || att.face;
     const blocking = (def.state === 'block' || def.state === 'blockstun') && !def.airborne;
 
@@ -496,6 +520,30 @@ class Game {
     this.crowd.excite(0.6);
     this.fx.ring(f.x, f.y - 120, 20, 260, 26, m.aura, 8);
     this.shake(4, m.freeze);
+  }
+
+  // Clock ran out: more health wins the round; level health is a draw and the round
+  // is fought again.
+  onTimeUp() {
+    const { p1, p2 } = this;
+    this.phase = 'ko';
+    this.phaseT = 0;
+    this.timeUp = true;
+    this.inputs.forEach((i) => i.reset());
+    Sound.bell();
+    if (p1.hp === p2.hp) {
+      this.winner = this.loser = null;
+      this.hud.announce('DRAW', 'round');
+      Sound.say('Draw!', { rate: 0.9 });
+      return;
+    }
+    const [w, l] = p1.hp > p2.hp ? [p1, p2] : [p2, p1];
+    this.winner = w;
+    this.loser = l;
+    this.hud.announce('TIME OVER', 'round final');
+    Sound.say('Time over!', { rate: 0.9 });
+    this.won[w.side]++;
+    this.hud.rounds(this.won);
   }
 
   onKO(winner, loser) {
