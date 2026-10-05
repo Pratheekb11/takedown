@@ -20,6 +20,9 @@ class AIController {
     this.input = input;
     this.hist = [];
     this.cool = 50;
+    // No supers for the first 3 seconds of a round: power carries over, and a super
+    // fired the instant FIGHT! is called feels cheap.
+    this.superWait = 180;
     this.walkDir = 0;
     this.walkT = 0;
     this.blockT = 0;
@@ -40,6 +43,8 @@ class AIController {
       return;
     }
 
+    if (this.superWait > 0) this.superWait--;
+    const pw = this.superWait > 0 ? 0 : me.power; // power the AI may spend on supers right now
     const dist = Math.abs(opp.x - me.x);
     const gap = dist - opp.ch.halfW; // distance from my centre to the front of their body
     const far = Math.max(me.range('kick'), me.range('cross'));
@@ -52,10 +57,10 @@ class AIController {
     if (me.state === 'attack' && me.connected && me.moveId !== this.chainFor) {
       this.chainFor = me.moveId;
       const next = CHAIN_NEXT[me.move.key];
-      const confirm = me.move.key !== 'jab' && me.power >= 50 && chance(this.cfg.superUse * 3);
-      if (confirm && !me.move.super) inp.press(me.power >= 100 ? 'super2' : 'super1');
+      const confirm = me.move.key !== 'jab' && pw >= 50 && chance(this.cfg.superUse * 3);
+      if (confirm && !me.move.super) inp.press(pw >= 100 ? 'super2' : 'super1');
       else if (next && chance(this.cfg.combo)) inp.press(next);
-      else if (me.move.key === 'hook' && me.power >= 50 && chance(this.cfg.combo * 0.5)) inp.press('super1');
+      else if (me.move.key === 'hook' && pw >= 50 && chance(this.cfg.combo * 0.5)) inp.press('super1');
     }
 
     // Hold block for a while once committed.
@@ -76,7 +81,7 @@ class AIController {
       if (chance(this.cfg.punish)) {
         const pick = ['hook', 'cross', 'jab'].find((a) => me.range(a) >= gap);
         if (pick) {
-          if (me.power >= 50 && chance(this.cfg.superUse * 4)) return inp.press(me.power >= 100 ? 'super2' : 'super1');
+          if (pw >= 50 && chance(this.cfg.superUse * 4)) return inp.press(pw >= 100 ? 'super2' : 'super1');
           return inp.press(pick);
         }
       }
@@ -115,8 +120,8 @@ class AIController {
     // Supers.
     if (opp.vulnerable) {
       const inReach = (slot) => (me.supers[slot].shot ? gap < 700 : gap < me.range(slot) + 140);
-      if (me.power >= 100 && inReach('super2') && chance(this.cfg.superUse)) return inp.press('super2');
-      if (me.power >= 50 && inReach('super1') && chance(this.cfg.superUse * 0.6)) return inp.press('super1');
+      if (pw >= 100 && inReach('super2') && chance(this.cfg.superUse)) return inp.press('super2');
+      if (pw >= 50 && inReach('super1') && chance(this.cfg.superUse * 0.6)) return inp.press('super1');
     }
 
     // Movement.

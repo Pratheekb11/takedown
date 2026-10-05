@@ -222,3 +222,134 @@ class TouchController {
     btn.addEventListener('contextmenu', (e) => e.preventDefault());
   }
 }
+
+// Gamepad (standard layout: Xbox / PlayStation / most USB pads). Polled once per
+// animation frame, only while a pad is plugged in.
+//   left stick / d-pad  move; up jumps, down blocks
+//   A / Cross       jump          X / Square    punch (repeat taps chain like the PUNCH button)
+//   Y / Triangle    uppercut      B / Circle    kick
+//   RB / R1, RT     super (biggest the bar pays for)
+//   LB / L1, LT     special (half bar)
+//   Start           pause
+// In menus the d-pad / stick moves between buttons, A presses, B goes back.
+const PAD = { A: 0, B: 1, X: 2, Y: 3, LB: 4, RB: 5, LT: 6, RT: 7, START: 9, UP: 12, DOWN: 13, LEFT: 14, RIGHT: 15 };
+const PAD_DEAD = 0.45;
+
+class GamepadController {
+  // hooks: power() -> player's power bar, pause(), menu() -> true while a menu screen is up
+  constructor(hooks) {
+    this.hooks = hooks;
+    this.input = null;
+    this.prev = [];
+    this.dirs = { left: false, right: false, block: false, up: false };
+    this.chainI = 0;
+    this.lastPunch = 0;
+    this.repeatT = 0;
+    this.polling = false;
+    this.poll = this.poll.bind(this);
+    window.addEventListener('gamepadconnected', () => this.start());
+    if (navigator.getGamepads && [...navigator.getGamepads()].some(Boolean)) this.start();
+  }
+
+  start() {
+    if (this.polling) return;
+    this.polling = true;
+    requestAnimationFrame(this.poll);
+  }
+
+  pad() {
+    return navigator.getGamepads ? [...navigator.getGamepads()].find((p) => p && p.connected) : null;
+  }
+
+  reset() {
+    for (const k in this.dirs) this.dirs[k] = false;
+    this.chainI = 0;
+  }
+
+  poll() {
+    const pad = this.pad();
+    if (!pad) {
+      this.polling = false;
+      this.prev = [];
+      if (this.input) for (const k of ['left', 'right', 'block']) this.input.release(k);
+      this.reset();
+      return;
+    }
+    const down = pad.buttons.map((b) => b.pressed || b.value > 0.5);
+    const tapped = (i) => down[i] && !this.prev[i];
+    const ax = pad.axes[0] || 0, ay = pad.axes[1] || 0;
+    const left = down[PAD.LEFT] || ax < -PAD_DEAD;
+    const right = down[PAD.RIGHT] || ax > PAD_DEAD;
+    const up = down[PAD.UP] || ay < -PAD_DEAD - 0.15;
+    const dn = down[PAD.DOWN] || ay > PAD_DEAD + 0.15;
+
+    if (tapped(PAD.START)) this.hooks.pause();
+    if (this.hooks.menu()) this.menu(pad, down, { left, right, up, dn }, tapped);
+    else if (this.input) this.fight(down, { left, right, up, dn }, tapped);
+    this.prev = down;
+    requestAnimationFrame(this.poll);
+  }
+
+  fight(down, d, tapped) {
+    const inp = this.input;
+    const set = (k, on) => {
+      if (this.dirs[k] === on) return;
+      this.dirs[k] = on;
+      if (k !== 'up') on ? inp.press(k) : inp.release(k);
+      else if (on) inp.press('up');
+    };
+    set('left', d.left && !d.right);
+    set('right', d.right && !d.left);
+    set('block', d.dn);
+    set('up', d.up);
+    if (tapped(PAD.A)) inp.press('up');
+    if (tapped(PAD.X)) inp.press(this.punch(d.dn));
+    if (tapped(PAD.Y)) inp.press('upper');
+    if (tapped(PAD.B)) inp.press('kick');
+    if (tapped(PAD.RB) || tapped(PAD.RT)) inp.press(this.hooks.power() >= 100 ? 'super2' : 'super1');
+    if (tapped(PAD.LB) || tapped(PAD.LT)) inp.press('super1');
+  }
+
+  punch(downHeld) {
+    if (downHeld) {
+      this.chainI = 0;
+      return 'upper';
+    }
+    const now = performance.now();
+    if (now - this.lastPunch > PUNCH_RESET_MS) this.chainI = 0;
+    this.lastPunch = now;
+    const a = PUNCH_CHAIN[this.chainI];
+    this.chainI = (this.chainI + 1) % PUNCH_CHAIN.length;
+    return a;
+  }
+
+  // Menus: step through the visible buttons in page order, with key-repeat when held.
+  menu(pad, down, d, tapped) {
+    if (this.input) this.reset();
+    const screen = [...document.querySelectorAll('.screen:not(.hidden)')].pop();
+    if (!screen) return;
+    const items = [...screen.querySelectorAll('button:not([disabled])')].filter((b) => b.offsetParent);
+    if (!items.length) return;
+    let i = items.indexOf(document.activeElement);
+    const step = d.dn || d.right ? 1 : d.up || d.left ? -1 : 0;
+    const move = () => {
+      i = i < 0 ? 0 : (i + step + items.length) % items.length;
+      items[i].focus();
+      document.body.classList.add('pad-nav');
+    };
+    if (!step) this.held = false;
+    else if (!this.held) {
+      this.held = true;
+      this.repeatT = 18; // held: wait a moment, then repeat quickly
+      move();
+    } else if (--this.repeatT <= 0) {
+      this.repeatT = 6;
+      move();
+    }
+    if (tapped(PAD.A) && i >= 0) items[i].click();
+    if (tapped(PAD.B)) {
+      const back = screen.querySelector('[data-go="title"], #btn-resume, #btn-lad-quit, #btn-menu');
+      if (back) back.click();
+    }
+  }
+}

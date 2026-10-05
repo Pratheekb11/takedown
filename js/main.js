@@ -38,6 +38,13 @@
 
   const keyboard = new KeyboardController(KEYMAP_P1);
   const touch = new TouchController($('touch'));
+  const pad = new GamepadController({
+    power: () => (game.p1 ? game.p1.power : 0),
+    pause: () => pause(!game.paused),
+    menu: () => !inMatch || game.paused || game.phase === 'over',
+  });
+  // the gamepad focus ring is only for the pad; a mouse or touch hides it again
+  window.addEventListener('pointerdown', () => document.body.classList.remove('pad-nav'));
   // Portrait title: the free space between the tagline and the buttons, where the
   // backdrop fighters should stand.
   const backdropGap = () => {
@@ -80,6 +87,8 @@
     keyboard.input = input;
     touch.reset();
     touch.input = input;
+    pad.reset();
+    pad.input = input;
     game.inputs[0].reset();
   }
 

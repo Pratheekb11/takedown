@@ -1108,6 +1108,12 @@ kbd {
   margin-top: 4px !important;
 }
 
+/* gamepad menu navigation: a clear ring on the focused button */
+.pad-nav button:focus {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
 /* ---------- Arcade ---------- */
 .arcade-note {
   display: none;
